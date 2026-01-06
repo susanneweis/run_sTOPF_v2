@@ -7,7 +7,7 @@ env_name="hormone_env"
 source /home/sweis/.venvs/$env_name/bin/activate
 
 # run the Python script
-python run_sTOPF.py "$1" "$2" "$3"
+python run_sTOPF_v2.py "$1" "$2" "$3"
 
 # deactivate environment
 deactivate

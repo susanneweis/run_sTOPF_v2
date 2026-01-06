@@ -2,8 +2,8 @@
 
 # HTCondor/Juseless variables 
 init_dir='/data/project/brainvar_sexdiff_movies/sTOPF' # main directory where the project is stored
-code_dir='code/run_sTOPF' # subdirectory containing the code
-name_py='run_sTOPF.py'
+code_dir='code/run_sTOPF_v2' # subdirectory containing the code
+name_py='run_sTOPF_v2.py'
 name_wrapper='wrap_run_sTOPF.sh'  # name of the bash-wrapper
 proj='v2'
 
