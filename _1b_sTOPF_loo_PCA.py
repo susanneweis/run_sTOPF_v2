@@ -38,7 +38,7 @@ def main(base_path,proj,movies_properties):
 
     data_path = f"{base_path}/data_run_sTOPF_{proj}"
 
-    results_path = f"{base_path}/results_run_sTOPF_{proj}"
+    results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}"
  
     phenotype_path = f"{data_path}/Participant_sex_info.csv"
     complete_participants_path = f"{data_path}/complete_participants.csv"

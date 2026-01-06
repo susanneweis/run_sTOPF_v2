@@ -24,7 +24,7 @@ def main(base_path):
         for perc in perc_values:
             file_path = os.path.join(
                 base_path,
-                "results_run_sTOPF_v2", 
+                "results_run_sTOPF_v2_data_v2", 
                 f"results_nn{nn}",
                 "ind_classification",
                 f"classification_subjects_across_movies_nn{nn}_top_{perc}perc.csv"

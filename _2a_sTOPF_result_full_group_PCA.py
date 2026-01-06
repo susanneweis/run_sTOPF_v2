@@ -9,8 +9,8 @@ from sklearn.feature_selection import mutual_info_regression
 
 def main(base_path,proj,nn_mi,movies_properties):
         
-    results_path = f"{base_path}/results_run_sTOPF_{proj}"
-    results_out_path = f"{base_path}/results_run_sTOPF_{proj}/results_nn{nn_mi}"
+    results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}"
+    results_out_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
 
     # Define movie timepoint parameters
     #movies_properties = {

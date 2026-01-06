@@ -49,7 +49,7 @@ def main(base_path, proj, movies_properties):
     # base_path =  "/Users/sweis/Data/Arbeit/Juseless/data/project/brainvar_sexdiff_movies" 
     data_path = f"{base_path}/data_run_sTOPF_{proj}"
 
-    results_path = f"{base_path}/results_run_sTOPF_{proj}"
+    results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}"
 
     phenotype_path = f"{data_path}/Participant_sex_info.csv"
     complete_participants_path = f"{data_path}/complete_participants.csv"

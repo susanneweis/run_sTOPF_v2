@@ -2,9 +2,10 @@ import pandas as pd
 import os
 
 def main(base_path, proj, nn_mi,movies_properties,quant):
-    results_path = f"{base_path}/results_run_sTOPF_{proj}/results_nn{nn_mi}"
-    
-    results_out_path = f"{base_path}/results_run_sTOPF_{proj}/results_nn{nn_mi}/ind_classification"
+   
+    results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
+    results_out_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}/ind_classification"
+
 
     if not os.path.exists(results_out_path):
         os.makedirs(results_out_path, exist_ok=True) # Create the output directory if it doesn't exist
