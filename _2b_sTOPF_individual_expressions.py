@@ -137,9 +137,16 @@ def main(base_path,proj,nn_mi,movies_properties):
                 df_xf = pd.DataFrame(xf)
                 df_xm = pd.DataFrame(xm)
 
-                mi_f = mutual_info_regression(X=df_y, y=df_xf, n_neighbors=nn_mi, random_state=42)
-                mi_m = mutual_info_regression(X=df_y, y=df_xm, n_neighbors=nn_mi, random_state=42)
+                df_y = (df_y - df_y.mean()) / df_y.std(ddof=1)
+                df_xf = (df_xf - df_xf.mean()) / df_xf.std(ddof=1)
+                df_xm = (df_xm - df_xm.mean()) / df_xm.std(ddof=1)
 
+                X = np.column_stack([df_xm, df_xf])  # shape (T, 2)
+                y = df_y                       # shape (T,)
+
+                mi = mutual_info_regression(X, y, n_neighbors=nn_mi, random_state = 42)
+                mi_m = mi[0]
+                mi_f = mi[1]
                 
                 sub_sex = subs_sex.loc[subs_sex["subject_ID"] == subj, "gender"].iloc[0]
 

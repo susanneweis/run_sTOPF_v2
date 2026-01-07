@@ -96,7 +96,14 @@ def main(base_path,proj,nn_mi,movies_properties):
 
             df_yf = pd.DataFrame(y_f)
             df_ym = pd.DataFrame(y_m)
-            mi = mutual_info_regression(X=df_yf, y=df_ym, n_neighbors=nn_mi, random_state=42)
+
+            df_yf = (df_yf - df_yf.mean()) / df_yf.std(ddof=1)
+            df_ym = (df_ym - df_ym.mean()) / df_ym.std(ddof=1)
+
+            mi_1 = mutual_info_regression(X=df_yf, y=df_ym, n_neighbors=nn_mi, random_state=42)
+            mi_2 = mutual_info_regression(X=df_ym, y=df_yf, n_neighbors=nn_mi, random_state=42)
+
+            mi = (mi_1+ mi_2)/2
 
             rows.append(dict(
                 region=reg,
