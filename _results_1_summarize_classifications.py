@@ -2,12 +2,12 @@ import os
 import pandas as pd
 
 
-def main(base_path):
+def main(base_path,res_path,nn_values):
     # -------------------------
     # Configuration
     # -------------------------
 
-    nn_values = [3, 5, 10, 15, 20, 25, 30, 35, 50, 60, 70, 80, 90, 100]
+    #nn_values = [1,2,3,4,5,6,7,8,9,10,15]
    
     perc_values = [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]
 
@@ -24,7 +24,7 @@ def main(base_path):
         for perc in perc_values:
             file_path = os.path.join(
                 base_path,
-                "results_run_sTOPF_v2_data_v2", 
+                res_path, 
                 f"results_nn{nn}",
                 "ind_classification",
                 f"classification_subjects_across_movies_nn{nn}_top_{perc}perc.csv"
@@ -53,7 +53,7 @@ def main(base_path):
     # -------------------------
     # Save output
     # -------------------------
-    out_file = f"{base_path}/results_run_sTOPF_v2/mean_classification_across_nn_and_perc.csv"
+    out_file = f"{base_path}/{res_path}/mean_classification_across_nn_and_perc.csv"
 
     results_df.to_csv(out_file)
 
@@ -91,7 +91,7 @@ def main(base_path):
     # -------------------------
     # Save output
     # -------------------------
-    out_file_corr = f"{base_path}/results_run_sTOPF_v2/mean_classification_corr_across_perc.csv"
+    out_file_corr = f"{base_path}/{res_path}/mean_classification_corr_across_perc.csv"
 
     results_corr_df.to_csv(out_file_corr)
 
