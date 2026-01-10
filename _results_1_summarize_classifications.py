@@ -9,7 +9,7 @@ def main(base_path,res_path,nn_values):
 
     #nn_values = [1,2,3,4,5,6,7,8,9,10,15]
    
-    perc_values = [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]
+    perc_values = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
     value_column = "overall classification correct"
 
@@ -22,20 +22,15 @@ def main(base_path,res_path,nn_values):
         row = {"nn": nn}
 
         for perc in perc_values:
-            file_path = os.path.join(
-                base_path,
-                res_path, 
-                f"results_nn{nn}",
-                "ind_classification",
-                f"classification_subjects_across_movies_nn{nn}_top_{perc}perc.csv"
-            )
 
-            if not os.path.exists(file_path):
+            results_path = f"{base_path}/{res_path}/results_nn{nn}/ind_classification_nn{nn}/classification_subjects_across_movies_nn{nn}_top_{perc}perc.csv"
+
+            if not os.path.exists(results_path):
                 row[perc] = None
-                print(f"⚠️ Missing: {file_path}")
+                print(f"⚠️ Missing: {results_path}")
                 continue
 
-            df = pd.read_csv(file_path)
+            df = pd.read_csv(results_path)
 
             # Ensure numeric
             df[value_column] = pd.to_numeric(df[value_column], errors="coerce")
@@ -63,20 +58,15 @@ def main(base_path,res_path,nn_values):
     results_corr = []
 
     for perc in perc_values:
-        file_path = os.path.join(
-            base_path,
-            "results_run_sTOPF_v2", 
-            f"results_nn15",
-            "ind_classification",
-            f"classification_subjects_across_movies_corr_top_{perc}perc.csv"
-        )
 
-        if not os.path.exists(file_path):
+        results_path = f"{base_path}/{res_path}/results_nn1/ind_classification_nn1/classification_subjects_across_movies_corr_top_{perc}perc.csv"
+
+        if not os.path.exists(results_path):
             row[perc] = None
-            print(f"⚠️ Missing: {file_path}")
+            print(f"⚠️ Missing: {results_path}")
             continue
 
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(results_path)
 
         # Ensure numeric
         df[value_column] = pd.to_numeric(df[value_column], errors="coerce")
