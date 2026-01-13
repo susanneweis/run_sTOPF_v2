@@ -107,13 +107,13 @@ def main(base_path,proj,nn_mi,movies_properties):
 
                 ind_brain = pd.read_csv(ind_brain_path)
 
-                sub_brain = ind_brain.loc[ind_brain["movie"] == mv_str, ["region", "correlation_female", "correlation_male","fem_mi"]].reset_index(drop=True)
+                sub_brain = ind_brain.loc[ind_brain["movie"] == mv_str, ["region", "fem_vs_mal_corr", "fem_vs_mal_regr","fem_vs_mal_mi"]].reset_index(drop=True)
 
-                diff = np.arctanh(sub_brain["correlation_female"]) - np.arctanh(sub_brain["correlation_male"])
-                sub_brain["fem-mal"] = np.tanh(diff)
+                #diff = np.arctanh(sub_brain["correlation_female"]) - np.arctanh(sub_brain["correlation_male"])
+                #sub_brain["fem-mal"] = np.tanh(diff)
 
                 # change to proper comparisons of correlations
-                mean = np.arctanh(sub_brain["fem-mal"]).mean()
+                mean = np.arctanh(sub_brain["fem_vs_mal_corr"]).mean()
                 fem_mal_score = np.tanh(mean)
 
                 sub_sex = subs_sex.loc[subs_sex["subject_ID"] == subj, "gender"].iloc[0]
@@ -123,11 +123,11 @@ def main(base_path,proj,nn_mi,movies_properties):
 
                 n_roi = sub_brain["region"].nunique()
 
-                roi_values = fill_glassbrain(n_roi,sub_brain,"fem-mal")
+                roi_values = fill_glassbrain(n_roi,sub_brain,"fem_vs_mal_corr")
 
                 # Define output filename
-                title = f"Femaleness {mv_str} {subj} {sub_sex}. Score: {fem_mal_score:.2f}"
-                output_file = f"{outpath}/{mv_str}_ind_expression{mv_str}_{subj}.png"
+                title = f"Correlation with female vs male typical {mv_str} {subj} {sub_sex}. Score: {fem_mal_score:.2f}"
+                output_file = f"{outpath}/{mv_str}_ind_expression_corr{mv_str}_{subj}.png"
                 # output_file = os.path.join(outpath, f"{mv_str}_ind_expression{mv_str}_{subj}.png")
 
                 create_glassbrains(roi_values, atlas_path, n_roi, title,output_file,-1,1)
@@ -136,16 +136,33 @@ def main(base_path,proj,nn_mi,movies_properties):
 
                 n_roi = sub_brain["region"].nunique()
 
-                roi_values = fill_glassbrain(n_roi,sub_brain,"fem_mi")
+                roi_values = fill_glassbrain(n_roi,sub_brain,"fem_vs_mal_mi")
 
-                mean_fem_mi = sub_brain["fem_mi"].mean()
+                mean_diff_mi = sub_brain["fem_vs_mal_mi"].mean()
                 # Define output filename
-                title = f"Female MI {mv_str} {subj} {sub_sex}. Score: {mean_fem_mi:.2f}"
+                title = f"Female vs male MI {mv_str} {subj} {sub_sex}. Score: {mean_diff_mi:.2f}"
                 output_file = f"{outpath}/{mv_str}_ind_expression_mi_{mv_str}_{subj}.png"
                 # output_file = os.path.join(outpath, f"{mv_str}_ind_expression{mv_str}_{subj}.png")
 
-                min_val = sub_brain["fem_mi"].min()
-                max_val = sub_brain["fem_mi"].max()
+                min_val = sub_brain["fem_vs_mal_mi"].min()
+                max_val = sub_brain["fem_vs_mal_mi"].max()
+
+                create_glassbrains(roi_values, atlas_path, n_roi, title,output_file,min_val,max_val)
+
+                ##### Brain maps Regression
+
+                n_roi = sub_brain["region"].nunique()
+
+                roi_values = fill_glassbrain(n_roi,sub_brain,"fem_vs_mal_regr")
+
+                mean_diff_regr = sub_brain["fem_vs_mal_regr"].mean()
+                # Define output filename
+                title = f"Female vs male MI {mv_str} {subj} {sub_sex}. Score: {mean_diff_regr:.2f}"
+                output_file = f"{outpath}/{mv_str}_ind_expression_regr_{mv_str}_{subj}.png"
+                # output_file = os.path.join(outpath, f"{mv_str}_ind_expression{mv_str}_{subj}.png")
+
+                min_val = sub_brain["fem_vs_mal_regr"].min()
+                max_val = sub_brain["fem_vs_mal_regr"].max()
 
                 create_glassbrains(roi_values, atlas_path, n_roi, title,output_file,min_val,max_val)
 

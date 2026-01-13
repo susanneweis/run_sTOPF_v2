@@ -147,18 +147,20 @@ def main(base_path,proj,nn_mi,movies_properties):
                 mi = mutual_info_regression(X, y, n_neighbors=nn_mi, random_state = 42)
                 mi_m = mi[0]
                 mi_f = mi[1]
+
+                diff_mi = mi_f - mi_m
                 
                 sub_sex = subs_sex.loc[subs_sex["subject_ID"] == subj, "gender"].iloc[0]
 
-                loo_results_all.append({"subject": subj, "sex": sub_sex, "movie": curr_mov, "region": region, "correlation_female": rf, "correlation_male": rm, "femaleness": diff, "fem_similarity": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m})
-                loo_results_subj.append({"subject": subj, "sex": sub_sex, "movie": curr_mov, "region": region, "correlation_female": rf, "correlation_male": rm, "femaleness": diff, "fem_similarity": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m})
+                loo_results_all.append({"subject": subj, "sex": sub_sex, "movie": curr_mov, "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
+                loo_results_subj.append({"subject": subj, "sex": sub_sex, "movie": curr_mov, "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
             
-        out_df = pd.DataFrame(loo_results_subj, columns=["subject","sex","movie","region","correlation_female","correlation_male","femaleness","fem_similarity","fem_mi","mal_mi"])
+        out_df = pd.DataFrame(loo_results_subj, columns=["subject","sex","movie","region","correlation_female","correlation_male","fem_vs_mal_corr","fem_vs_mal_regr","fem_mi","mal_mi","fem_vs_mal_mi"])
         out_csv = f"{ind_path}/individual_expression_{subj}.csv"
         out_df.to_csv(out_csv, index=False)
         print(f"Saved: {out_csv}")
 
-    out_df = pd.DataFrame(loo_results_all, columns=["subject","sex","movie","region","correlation_female","correlation_male","femaleness","fem_similarity","fem_mi","mal_mi"])
+    out_df = pd.DataFrame(loo_results_all, columns=["subject","sex","movie","region","correlation_female","correlation_male","fem_vs_mal_corr","fem_vs_mal_regr","fem_mi","mal_mi","fem_vs_mal_mi"])
     out_csv = f"{results_out_path}/individual_expression_all_nn{nn_mi}.csv"
     out_df.to_csv(out_csv, index=False)
     print(f"Saved: {out_csv}")

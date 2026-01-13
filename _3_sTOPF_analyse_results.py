@@ -2,7 +2,6 @@ import pandas as pd
 
 def main(base_path,proj,nn_mi,movies_properties):
 
-    results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}"
     results_out_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
 
 
@@ -33,15 +32,15 @@ def main(base_path,proj,nn_mi,movies_properties):
     # res_summary = []
 
     ind_expr["class_corr"] = (
-        ((ind_expr["sex"] == "female") & (ind_expr["femaleness"] >= 0)) |
-        ((ind_expr["sex"] == "male") & (ind_expr["femaleness"] < 0))
+        ((ind_expr["sex"] == "female") & (ind_expr["fem_vs_mal_corr"] >= 0)) |
+        ((ind_expr["sex"] == "male") & (ind_expr["fem_vs_mal_corr"] < 0))
     )
 
     ind_expr["class_corr_sim"] = (
-        ((ind_expr["sex"] == "female") & (ind_expr["fem_similarity"] >= 0)) |
-        ((ind_expr["sex"] == "male") & (ind_expr["fem_similarity"] < 0))
+        ((ind_expr["sex"] == "female") & (ind_expr["fem_vs_mal_regr"] >= 0)) |
+        ((ind_expr["sex"] == "male") & (ind_expr["fem_vs_mal_regr"] < 0))
     )
-    ind_expr.to_csv(f"{results_out_path}/correct_classification_femaleness.csv", index=False)
+    ind_expr.to_csv(f"{results_out_path}/correct_classification_fem_vs_mal_corr.csv", index=False)
 
     ind_expr["class_corr_mi"] = (
         ((ind_expr["sex"] == "female") & (ind_expr["fem_mi"] >= ind_expr["mal_mi"] )) |
@@ -69,7 +68,7 @@ def main(base_path,proj,nn_mi,movies_properties):
         count_true_fem_mi = mv_class_fem["class_corr_mi"].sum()
         count_true_mal_mi = mv_class_mal["class_corr_mi"].sum()
 
-        movie_class_summary.append({"movie": curr_mov, "female corr femaleness": count_true_fem/nr_fem, "male corr femaleness": count_true_mal/nr_mal, "female corr fem_sim": count_true_fem_sim/nr_fem, "male corr fem_sim": count_true_mal_sim/nr_mal, "female corr mi": count_true_fem_mi/nr_fem, "male corr mi": count_true_mal_mi/nr_mal})
+        movie_class_summary.append({"movie": curr_mov, "female corr fem_vs_mal_corr": count_true_fem/nr_fem, "male corr fem_vs_mal_corr": count_true_mal/nr_mal, "female corr fem_sim": count_true_fem_sim/nr_fem, "male corr fem_sim": count_true_mal_sim/nr_mal, "female corr mi": count_true_fem_mi/nr_fem, "male corr mi": count_true_mal_mi/nr_mal})
 
     movie_class_summary_df = pd.DataFrame(movie_class_summary)
     movie_class_summary_df.to_csv(f"{results_out_path}/correct_classification_per_movie_nn{nn_mi}.csv", index=False)
@@ -92,7 +91,7 @@ def main(base_path,proj,nn_mi,movies_properties):
         count_true_fem_r_mi = reg_class_fem["class_corr_mi"].sum()
         count_true_mal_r_mi = reg_class_mal["class_corr_mi"].sum()
 
-        region_class_summary.append({"region": curr_reg, "female corr femaleness": count_true_fem_r/nr_fem, "male corr femaleness": count_true_mal_r/nr_mal, "female corr fem_sim": count_true_fem_r_sim/nr_fem, "male corr fem_sim": count_true_mal_r_sim/nr_mal, "female corr mi": count_true_fem_r_mi/nr_fem, "male corr mi": count_true_mal_r_mi/nr_mal})
+        region_class_summary.append({"region": curr_reg, "female corr fem_vs_mal_corr": count_true_fem_r/nr_fem, "male corr fem_vs_mal_corr": count_true_mal_r/nr_mal, "female corr fem_sim": count_true_fem_r_sim/nr_fem, "male corr fem_sim": count_true_mal_r_sim/nr_mal, "female corr mi": count_true_fem_r_mi/nr_fem, "male corr mi": count_true_mal_r_mi/nr_mal})
 
     region_class_summary_df = pd.DataFrame(region_class_summary)
     region_class_summary_df.to_csv(f"{results_out_path}/correct_classification_per_region_nn{nn_mi}.csv", index=False)
@@ -119,7 +118,7 @@ def main(base_path,proj,nn_mi,movies_properties):
         count_true_fem_r_mi = reg_class_fem["class_corr_mi"].sum()
         count_true_mal_r_mi = reg_class_mal["class_corr_mi"].sum()
 
-        act_mv_region_class_summary.append({"region": curr_reg, "female corr femaleness": count_true_fem_r/nr_fem, "male corr femaleness": count_true_mal_r/nr_mal, "female corr fem_sim": count_true_fem_r_sim/nr_fem, "male corr fem_sim": count_true_mal_r_sim/nr_mal, "female corr mi": count_true_fem_r_mi/nr_fem, "male corr mi": count_true_mal_r_mi/nr_mal})
+        act_mv_region_class_summary.append({"region": curr_reg, "female corr fem_vs_mal_corr": count_true_fem_r/nr_fem, "male corr fem_vs_mal_corr": count_true_mal_r/nr_mal, "female corr fem_sim": count_true_fem_r_sim/nr_fem, "male corr fem_sim": count_true_mal_r_sim/nr_mal, "female corr mi": count_true_fem_r_mi/nr_fem, "male corr mi": count_true_mal_r_mi/nr_mal})
 
     act_mv_region_class_summary_df = pd.DataFrame(act_mv_region_class_summary)
     act_mv_region_class_summary_df.to_csv(f"{results_out_path}/correct_classification_per_region_no_rest_nn{nn_mi}.csv", index=False)
@@ -146,7 +145,7 @@ def main(base_path,proj,nn_mi,movies_properties):
             count_true_fem_r_mi = reg_class_fem["class_corr_mi"].sum()
             count_true_mal_r_mi = reg_class_mal["class_corr_mi"].sum()
 
-            mv_reg_class_summary.append({"region": curr_reg, "movie": curr_mov, "female corr femaleness": count_true_fem_r/nr_fem, "male corr femaleness": count_true_mal_r/nr_mal, "female corr fem_sim": count_true_fem_r_sim/nr_fem, "male corr fem_sim": count_true_mal_r_sim/nr_mal,  "female corr mi": count_true_fem_r_mi/nr_fem, "male corr mi": count_true_mal_r_mi/nr_mal})
+            mv_reg_class_summary.append({"region": curr_reg, "movie": curr_mov, "female corr fem_vs_mal_corr": count_true_fem_r/nr_fem, "male corr fem_vs_mal_corr": count_true_mal_r/nr_mal, "female corr fem_sim": count_true_fem_r_sim/nr_fem, "male corr fem_sim": count_true_mal_r_sim/nr_mal,  "female corr mi": count_true_fem_r_mi/nr_fem, "male corr mi": count_true_mal_r_mi/nr_mal})
 
     mv_reg_class_summary_df = pd.DataFrame(mv_reg_class_summary)
     mv_reg_class_summary_df.to_csv(f"{results_out_path}/correct_classification_per_region_per_movie_nn{nn_mi}.csv", index=False)
@@ -157,9 +156,10 @@ def main(base_path,proj,nn_mi,movies_properties):
     out = (
         ind_expr.groupby(["subject", "sex", "movie"], as_index=False)
         .agg(
-            mean_femaleness=("femaleness", "mean"),                 # NaNs ignored by default
-            mean_fem_similarity=("fem_similarity", "mean"),                 # NaNs ignored by default
-            neg_perc =("femaleness", lambda s: (s < 0).sum()/436) # NaNs don't count as negative
+            mean_fem_vs_mal_corr=("fem_vs_mal_corr", "mean"),                 # NaNs ignored by default
+            mean_fem_vs_mal_regr=("fem_vs_mal_regr", "mean"),                 # NaNs ignored by default
+            neg_perc_fem_vs_mal_corr =("fem_vs_mal_corr", lambda s: (s < 0).sum()/436), # NaNs don't count as negative
+            neg_perc_fem_vs_mal_regr =("fem_vs_mal_regr", lambda s: (s < 0).sum()/436) # NaNs don't count as negative
         )
         .sort_values(["subject", "movie"])
     )
