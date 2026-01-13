@@ -106,13 +106,12 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         overall_res_corr.append({"subject": curr_sub, "sex": sub_sex, "percent fem": perc_female_corr, "overall classification": overall_class_corr, "overall classification correct": overall_class_correct_corr})
        
     out_df = pd.DataFrame(overall_res, columns=["subject", "sex", "percent fem", "overall classification", "overall classification correct"])
-    out_csv = f"{results_out_path}/classification_subjects_across_movies_nn{nn_mi}_top_{quant}perc.csv"
+    out_csv = f"{results_out_path}/classification_subjects_across_actual_movies_nn{nn_mi}_top_{quant}perc.csv"
     out_df.to_csv(out_csv, index=False)
 
     out_df_corr = pd.DataFrame(overall_res_corr, columns=["subject", "sex", "percent fem", "overall classification", "overall classification correct"])
-    out_csv_corr = f"{results_out_path}/classification_subjects_across_movies_corr_top_{quant}perc.csv"
+    out_csv_corr = f"{results_out_path}/classification_subjects_across_actual_movies_corr_top_{quant}perc.csv"
     out_df_corr.to_csv(out_csv_corr, index=False)
-
 
 # Execute script
 if __name__ == "__main__":
