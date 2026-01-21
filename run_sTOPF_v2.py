@@ -15,6 +15,7 @@ import _3_sTOPF_analyse_results
 import _4a_sTOPF_visualize_group_glass_brains
 import _4b_sTOPF_visualize_individual_glass_brains
 import _5b_ind_classification
+import _6b_ind_classification_CV
 
 # Setup for paths
 hostname = socket.gethostname()
@@ -51,7 +52,7 @@ else:
     # Local setup for testing 
     
     base_path =  "/Users/sweis/Data/Arbeit/Juseless/data/project/brainvar_sexdiff_movies" 
-    project_ext = "v2"
+    project_ext = "v3"
 
     # dataset_list = ["BOLD_Schaefer400_subcor36_mean_task-dps_MOVIES_INM7", "BOLD_Schaefer400_subcor36_mean_task-tgtbtu_MOVIES_INM7"] # only 2 movies
     # dataset = "BOLD_Schaefer400_subcor36_mean_task-dps_MOVIES_INM7.csv" 
@@ -62,7 +63,7 @@ else:
     # exclude_path = f"{base_path}/outlier_results/excluded_subjects.csv"
     # Parameter for Mutual Information Estimation
     
-    nn_mi = 3
+    nn_mi = 17
 
 # Define movie timepoint parameters
 mov_prop = {
@@ -85,12 +86,14 @@ for path in [base_path]:
 # print(f"\nPath and Files found: \n - {movie_path}\n - {phenotype_path} \n - {complete_participants_path}\n {exclude_path}\n")    
 print(f"\n Path and Files found: \n - {base_path}\n")    
 
-_1a_sTOPF_PCA_per_sex.main(base_path, project_ext, mov_prop)
-_1b_sTOPF_loo_PCA.main(base_path, project_ext, mov_prop)
-_2a_sTOPF_result_full_group_PCA.main(base_path, project_ext, nn_mi, mov_prop)
-_2b_sTOPF_individual_expressions.main(base_path, project_ext, nn_mi, mov_prop)
-_3_sTOPF_analyse_results.main(base_path, project_ext, nn_mi, mov_prop)
-_4a_sTOPF_visualize_group_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
-_4b_sTOPF_visualize_individual_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
-for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]: 
-    _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
+#_1a_sTOPF_PCA_per_sex.main(base_path, project_ext, mov_prop)
+#_1b_sTOPF_loo_PCA.main(base_path, project_ext, mov_prop)
+#_2a_sTOPF_result_full_group_PCA.main(base_path, project_ext, nn_mi, mov_prop)
+#_2b_sTOPF_individual_expressions.main(base_path, project_ext, nn_mi, mov_prop)
+#_3_sTOPF_analyse_results.main(base_path, project_ext, nn_mi, mov_prop)
+#_4a_sTOPF_visualize_group_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
+#_4b_sTOPF_visualize_individual_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
+#for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]: 
+#    _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
+for top_reg in [10]: 
+    _6b_ind_classification_CV.main(base_path, project_ext, nn_mi, mov_prop,top_reg)

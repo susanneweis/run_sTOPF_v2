@@ -23,7 +23,7 @@ def main(base_path,res_path,nn_values):
 
         for perc in perc_values:
 
-            results_path = f"{base_path}/{res_path}/results_nn{nn}/ind_classification_nn{nn}/classification_subjects_across_movies_nn{nn}_top_{perc}perc.csv"
+            results_path = f"{base_path}/{res_path}/results_nn{nn}/ind_classification_nn{nn}/classification_subjects_across_actual_movies_nn{nn}_top_{perc}perc.csv"
 
             if not os.path.exists(results_path):
                 row[perc] = None
@@ -59,7 +59,7 @@ def main(base_path,res_path,nn_values):
 
     for perc in perc_values:
 
-        results_path = f"{base_path}/{res_path}/results_nn1/ind_classification_nn1/classification_subjects_across_movies_corr_top_{perc}perc.csv"
+        results_path = f"{base_path}/{res_path}/results_nn1/ind_classification_nn1/classification_subjects_across_actual_movies_corr_top_{perc}perc.csv"
 
         if not os.path.exists(results_path):
             row[perc] = None
