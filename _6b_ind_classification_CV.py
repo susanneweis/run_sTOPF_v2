@@ -1,5 +1,8 @@
 import pandas as pd
 import os
+from pathlib import Path
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score
 
 # Julearn 
 from julearn import run_cross_validation
@@ -32,6 +35,9 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
     # Classification per Movie
     for curr_mov in movies:
 
+        out_csv_mi = f"{results_path}/classification_CV_nn{nn_mi}.csv" 
+        out_csv_corr = f"{results_path}/classification_CV_corr.csv" 
+
         # adjust variable naming and print out results
         
         cmp_tc_path = f"{results_path}/compare_time_courses_nn{nn_mi}/results_compare_time_courses_{curr_mov}.csv" 
@@ -63,6 +69,13 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         # show data type of predictors
         X_types = {"continuous": X}
 
+        class_data_train, class_data_test = train_test_split(
+            class_data,
+            test_size=0.1,
+            random_state=42,
+            stratify=class_data[y],   # important for classification
+        )
+
         cv = RepeatedKFold(n_splits=10, n_repeats=1, random_state=22)
         scoring = ["accuracy", "balanced_accuracy", "f1"]
 
@@ -70,20 +83,48 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
             X=X,
             y=y,
             X_types=X_types, 
-            data=class_data,
+            data=class_data_train,
             model="svm",
             problem_type="classification",
             seed=200,
             return_estimator="final",
+            return_train_score=True,
             #return_inspector=True,
             cv=cv,
             scoring=scoring,
         )
 
-        print(scores1)
-        print("Mean test accuracy:", scores1["test_accuracy"].mean())
-        print("Mean balanced test accuracy:", scores1["test_balanced_accuracy"].mean())
-        print("Mean false alarm rate:", scores1["test_f1"].mean())
+        y_true = class_data_test[y].to_numpy()
+        y_pred = model1.predict(class_data_test[X])
+
+        acc  = accuracy_score(y_true, y_pred)
+        bacc = balanced_accuracy_score(y_true, y_pred)
+        f1   = f1_score(y_true, y_pred)  
+
+        # print(scores1)
+        #print("Mean test accuracy:", scores1["test_accuracy"].mean())
+        #print("Mean balanced test accuracy:", scores1["test_balanced_accuracy"].mean())
+        #print("Mean false alarm rate:", scores1["test_f1"].mean())
+
+        row = {
+            "top_reg": quant,
+            "movie": curr_mov,
+            "train_score": float(scores1["train_accuracy"].mean()),
+            "cv_accuracy_mean": float(scores1["test_accuracy"].mean()),
+            "cv_balanced_accuracy_mean": float(scores1["test_balanced_accuracy"].mean()),
+            "cv_f1_mean": float(scores1["test_f1"].mean()),
+            "test_accuracy": acc,
+            "test_balanced_accuracy": bacc,
+            "test_f1": f1,
+        }
+
+        df_row = pd.DataFrame([row])
+
+        # write header only if file doesn't exist yet (or is empty)
+        out_path_mi = Path(out_csv_mi)
+        write_header = (not out_path_mi.exists()) or (out_path_mi.stat().st_size == 0)
+        df_row.to_csv(out_csv_mi, mode="a", header=write_header, index=False,float_format="%.2f")
+
 
 
         thresh = cmp_tc_data["corr"].quantile(quantile)
@@ -112,6 +153,13 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         # show data type of predictors
         X_types = {"continuous": X}
 
+        class_data_train, class_data_test = train_test_split(
+            class_data,
+            test_size=0.1,
+            random_state=42,
+            stratify=class_data[y],   # important for classification
+        )
+
         cv = RepeatedKFold(n_splits=10, n_repeats=1, random_state=22)
         scoring = ["accuracy", "balanced_accuracy", "f1"]
 
@@ -119,25 +167,48 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
             X=X,
             y=y,
             X_types=X_types, 
-            data=class_data,
+            data=class_data_train,
             model="svm",
             problem_type="classification",
             seed=200,
             return_estimator="final",
+            return_train_score=True,
             #return_inspector=True,
             cv=cv,
             scoring=scoring,
         )
-        
-        print(scores1)
-        print("Mean test accuracy:", scores1["test_accuracy"].mean())
-        print("Mean balanced test accuracy:", scores1["test_balanced_accuracy"].mean())
-        print("Mean false alarm rate:", scores1["test_f1"].mean())
-    
-    
-        
 
+        y_true = class_data_test[y].to_numpy()
+        y_pred = model1.predict(class_data_test[X])
 
+        acc  = accuracy_score(y_true, y_pred)
+        bacc = balanced_accuracy_score(y_true, y_pred)
+        f1   = f1_score(y_true, y_pred)  
+        
+        #print(scores1)
+        #print("Mean test accuracy:", scores1["test_accuracy"].mean())
+        #print("Mean balanced test accuracy:", scores1["test_balanced_accuracy"].mean())
+        #print("Mean false alarm rate:", scores1["test_f1"].mean())
+    
+        row = {
+            "top_reg": quant,
+            "movie": curr_mov,
+            "train_score": float(scores1["train_accuracy"].mean()),
+            "cv_accuracy_mean": float(scores1["test_accuracy"].mean()),
+            "cv_balanced_accuracy_mean": float(scores1["test_balanced_accuracy"].mean()),
+            "cv_f1_mean": float(scores1["test_f1"].mean()),
+            "test_accuracy": acc,
+            "test_balanced_accuracy": bacc,
+            "test_f1": f1,
+        }
+
+        df_row = pd.DataFrame([row])
+
+        # write header only if file doesn't exist yet (or is empty)
+        out_path_corr = Path(out_csv_corr)
+        write_header = (not out_path_corr.exists()) or (out_path_corr.stat().st_size == 0)
+        df_row.to_csv(out_csv_corr, mode="a", header=write_header, index=False,float_format="%.2f")
+    
 
 # Execute script
 if __name__ == "__main__":
