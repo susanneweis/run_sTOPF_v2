@@ -12,6 +12,7 @@ from julearn.model_selection import StratifiedBootstrap
 from julearn.stats.corrected_ttest import corrected_ttest
 from sklearn.model_selection import RepeatedKFold
 from sklearn.model_selection import RepeatedStratifiedKFold
+# from julearn.viz import plot_scores
 
 def main(base_path, proj, nn_mi,movies_properties,quant):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
@@ -109,10 +110,14 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         row = {
             "top_reg": quant,
             "movie": curr_mov,
-            "train_score": float(scores1["train_accuracy"].mean()),
+            "train_score_mean": float(scores1["train_accuracy"].mean()),
             "cv_accuracy_mean": float(scores1["test_accuracy"].mean()),
             "cv_balanced_accuracy_mean": float(scores1["test_balanced_accuracy"].mean()),
             "cv_f1_mean": float(scores1["test_f1"].mean()),
+            "train_score_std": float(scores1["train_accuracy"].std()),
+            "cv_accuracy_std": float(scores1["test_accuracy"].std()),
+            "cv_balanced_accuracy_std": float(scores1["test_balanced_accuracy"].std()),
+            "cv_f1_std": float(scores1["test_f1"].std()),
             "test_accuracy": acc,
             "test_balanced_accuracy": bacc,
             "test_f1": f1,
@@ -193,10 +198,14 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         row = {
             "top_reg": quant,
             "movie": curr_mov,
-            "train_score": float(scores1["train_accuracy"].mean()),
+            "train_score_mean": float(scores1["train_accuracy"].mean()),
             "cv_accuracy_mean": float(scores1["test_accuracy"].mean()),
             "cv_balanced_accuracy_mean": float(scores1["test_balanced_accuracy"].mean()),
             "cv_f1_mean": float(scores1["test_f1"].mean()),
+            "train_score_std": float(scores1["train_accuracy"].std()),
+            "cv_accuracy_std": float(scores1["test_accuracy"].std()),
+            "cv_balanced_accuracy_std": float(scores1["test_balanced_accuracy"].std()),
+            "cv_f1_std": float(scores1["test_f1"].std()),
             "test_accuracy": acc,
             "test_balanced_accuracy": bacc,
             "test_f1": f1,
