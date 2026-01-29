@@ -7,10 +7,11 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import socket
 
-import _add_data_1_emotion_anno
+import _mov_anno_1_emotion 
 
-base_path =  "/Users/sweis/Data/Arbeit/Juseless/data/project/brainvar_sexdiff_movies" 
-
+base_path =  "/Users/sweis/Data/Arbeit/Juseless/data/project/brainvar_sexdiff_movies/" 
 results = "results_annotations"
+movies = ["DD", "DMW", "DPS", "FG", "LIB", "S", "SS", "TGTBTU"]
 
-_add_data_1_emotion_anno.main(base_path,results,nn_values)
+
+_mov_anno_1_emotion.main(base_path,movies,results)

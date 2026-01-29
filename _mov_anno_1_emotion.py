@@ -1,59 +1,62 @@
 from pathlib import Path
 import pandas as pd
+import os
 
-# --------------------
-# configuration
-# --------------------
-movies = ["DD", "DMW", "DPS", "FG", "LIB", "S", "SS", "TGTBTU"]
-emotions = ["ANGST", "EKEL", "FREUDE", "SURPRISE", "TRAUER", "WUT"]
 
-in_dir = Path("path/to/input_csvs")     # <-- change
-out_dir = Path("path/to/output_csvs")   # <-- change
-out_dir.mkdir(parents=True, exist_ok=True)
+def main(base_path,movies, results):
+    # --------------------
+    # configuration
+    # --------------------
+    emotions = ["ANGST", "EKEL", "FREUDE", "SURPRISE", "TRAUER", "WUT"]
 
-# --------------------
-# processing
-# --------------------
-for movie in movies:
-    mean_tcs = {}
-    expected_T = None
+    in_path = f"{base_path}/movies_annotations/annotation_emotions/compiled_data"
+    
+    out_path = f"{base_path}/{results}"
 
-    for emotion in emotions:
-        fp = in_dir / f"{movie}_{emotion}.csv"
-        if not fp.exists():
-            raise FileNotFoundError(fp)
+    if not os.path.exists(out_path):
+        os.makedirs(out_path, exist_ok=True) # Create the output directory if it doesn't exist
 
-        # no header:
-        # col 0 = participant, cols 1..T = time points
-        df = pd.read_csv(fp, header=None)
+    # --------------------
+    # processing
+    # --------------------
+    for movie in movies:
+        mean_tcs = {}
+        expected_T = None
 
-        if df.shape[1] < 2:
-            raise ValueError(f"{fp} has <2 columns. Expected participant + timepoints.")
+        for emotion in emotions:
+            fp = f"{in_path}/{movie}_{emotion}.csv"
 
-        values = df.iloc[:, 1:]  # drop participant column
-        values = values.apply(pd.to_numeric, errors="coerce")  # robust conversion
+            # no header:
+            # col 0 = participant, cols 1..T = time points
+            df = pd.read_csv(fp, header=None)
 
-        # check timepoints count matches across emotions for the same movie
-        T = values.shape[1]
-        if expected_T is None:
-            expected_T = T
-        elif T != expected_T:
-            raise ValueError(
-                f"Timepoints mismatch for {movie}: expected {expected_T}, "
-                f"but {emotion} has {T} in {fp.name}"
-            )
+            if df.shape[1] < 2:
+                raise ValueError(f"{fp} has <2 columns. Expected participant + timepoints.")
 
-        # mean across participants per timepoint -> length T
-        mean_tc = values.mean(axis=0, skipna=True)
-        mean_tcs[emotion] = mean_tc.reset_index(drop=True)
+            values = df.iloc[:, 1:]  # drop participant column
+            values = values.apply(pd.to_numeric, errors="coerce")  # robust conversion
 
-    # rows = time points, columns = emotions
-    out_df = pd.DataFrame(mean_tcs, columns=emotions)
+            # check timepoints count matches across emotions for the same movie
+            T = values.shape[1]
+            if expected_T is None:
+                expected_T = T
+            elif T != expected_T:
+                raise ValueError(
+                    f"Timepoints mismatch for {movie}: expected {expected_T}, "
+                   f"but {emotion} has {T} in {fp.name}"
+               )
 
-    out_file = out_dir / f"{movie}_mean_timecourses.csv"
-    out_df.to_csv(out_file, index=False)
+            # mean across participants per timepoint -> length T
+            mean_tc = values.mean(axis=0, skipna=True)
+            mean_tcs[emotion] = mean_tc.reset_index(drop=True)
 
-    print(f"✅ wrote {out_file} | timepoints={out_df.shape[0]} | emotions={out_df.shape[1]}")
+        # rows = time points, columns = emotions
+        out_df = pd.DataFrame(mean_tcs, columns=emotions)
+
+        out_file = out_dir / f"{movie}_mean_timecourses.csv"
+        out_df.to_csv(out_file, index=False)
+
+        print(f"✅ wrote {out_file} | timepoints={out_df.shape[0]} | emotions={out_df.shape[1]}")
 
 # Execute script
 if __name__ == "__main__":
