@@ -79,6 +79,8 @@ mov_prop = {
     "REST2": {"min_timepoint": 6, "max_timepoint": 499}
 }
 
+TR = 0.980  # seconds
+
 for path in [base_path]:
     if not os.path.exists(path): 
         print(f"File not found: {path}")

@@ -1,9 +1,11 @@
 from pathlib import Path
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
+import numpy as np
 
 
-def main(base_path,movies, results):
+def main(base_path,movies, results,TR):
     # --------------------
     # configuration
     # --------------------
@@ -53,10 +55,44 @@ def main(base_path,movies, results):
         # rows = time points, columns = emotions
         out_df = pd.DataFrame(mean_tcs, columns=emotions)
 
-        out_file = out_dir / f"{movie}_mean_timecourses.csv"
-        out_df.to_csv(out_file, index=False)
+        out_file = f"{out_path}/{movie}_mean_timecourses.csv"
+
+        out_df.to_csv(out_file, index=False, float_format="%.3f")
 
         print(f"✅ wrote {out_file} | timepoints={out_df.shape[0]} | emotions={out_df.shape[1]}")
+
+    plot_dir = out_path    # where PNGs should go
+
+    for movie in movies:
+        fp = f"{plot_dir}/{movie}_mean_timecourses.csv"
+
+        df = pd.read_csv(fp)  # columns are emotions, rows are timepoints
+
+        # ensure correct column order (and ignore extra columns if any)
+        df = df[[c for c in emotions if c in df.columns]]
+
+        n_tp = len(df)
+        time_sec = np.arange(n_tp) * TR
+
+        plt.figure(figsize=(12, 5))
+
+        #for emo in df.columns:
+        #    plt.plot(df[emo].values, label=emo)
+
+        for emo in df.columns:
+            plt.plot(time_sec, df[emo].values, label=emo)
+
+        plt.title(f"{movie} – Mean emotion time courses")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Mean value")
+        plt.legend(ncol=3, fontsize=9)
+        plt.tight_layout()
+
+        out_png = f"{plot_dir}/{movie}_mean_timecourses.png"
+        plt.savefig(out_png, dpi=200)
+        plt.close()
+
+        print(f"✅ saved {out_png}")
 
 # Execute script
 if __name__ == "__main__":

@@ -13,5 +13,6 @@ base_path =  "/Users/sweis/Data/Arbeit/Juseless/data/project/brainvar_sexdiff_mo
 results = "results_annotations"
 movies = ["DD", "DMW", "DPS", "FG", "LIB", "S", "SS", "TGTBTU"]
 
+TR = 0.980  # seconds
 
-_mov_anno_1_emotion.main(base_path,movies,results)
+_mov_anno_1_emotion.main(base_path,movies,results,TR)
