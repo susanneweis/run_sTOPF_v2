@@ -66,18 +66,24 @@ else:
     nn_mi = 17
 
 # Define movie timepoint parameters
-mov_prop = {
-    "DD": {"min_timepoint": 6, "max_timepoint": 463},
-    "S": {"min_timepoint": 6, "max_timepoint": 445},
-    "DPS": {"min_timepoint": 6, "max_timepoint": 479},
-    "FG": {"min_timepoint": 6, "max_timepoint": 591},
-    "DMV": {"min_timepoint": 6, "max_timepoint": 522},
-    "LIB": {"min_timepoint": 6, "max_timepoint": 454},
-    "TGTBTU": {"min_timepoint": 6, "max_timepoint": 512},
-    "SS": {"min_timepoint": 6, "max_timepoint": 642},
-    "REST1": {"min_timepoint": 6, "max_timepoint": 499},
-    "REST2": {"min_timepoint": 6, "max_timepoint": 499}
-}
+#mov_prop = {
+#    "DD": {"min_timepoint": 6, "max_timepoint": 463},
+#    "S": {"min_timepoint": 6, "max_timepoint": 445},
+#    "DPS": {"min_timepoint": 6, "max_timepoint": 479},
+#    "FG": {"min_timepoint": 6, "max_timepoint": 591},
+#    "DMV": {"min_timepoint": 6, "max_timepoint": 522},
+#    "LIB": {"min_timepoint": 6, "max_timepoint": 454},
+#    "TGTBTU": {"min_timepoint": 6, "max_timepoint": 512},
+#    "SS": {"min_timepoint": 6, "max_timepoint": 642},
+#    "REST1": {"min_timepoint": 6, "max_timepoint": 499},
+#    "REST2": {"min_timepoint": 6, "max_timepoint": 499}
+#}
+
+# mov_prop are new read in from file
+data_path = f"{base_path}/data_run_sTOPF_{proj}"
+mov_prop_file = f"{data_path}/movie_timepoints.csv"
+mov_prop_df = pd.read_csv(mov_prop_file, index_col="movie")
+mov_prop = mov_prop_df.to_dict(orient="index")
 
 TR = 0.980  # seconds
 
