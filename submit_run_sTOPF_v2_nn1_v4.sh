@@ -5,7 +5,7 @@ init_dir='/data/project/brainvar_sexdiff_movies/sTOPF' # main directory where th
 code_dir='code/run_sTOPF_v2' # subdirectory containing the code
 name_py='run_sTOPF_v2.py'
 name_wrapper='wrap_run_sTOPF.sh'  # name of the bash-wrapper
-proj='v3'
+proj='v4'
 
 # print the .submit header
 printf "# The environment
@@ -26,7 +26,7 @@ transfer_input_files = ${name_py}
 # project dir 
 wkdir=${init_dir}
 project=${proj}
-nn=3
+nn=1
 
 # set up log folder
 logs_dir=${init_dir}/${code_dir}/logs/ #${dataset} #location where log files will be saved
