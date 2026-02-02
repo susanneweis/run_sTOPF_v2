@@ -3,6 +3,11 @@ import os
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score
+from sklearn.inspection import permutation_importance
+from sklearn.model_selection import RepeatedKFold
+from sklearn.model_selection import RepeatedStratifiedKFold
+import numpy as np
+import pandas as pd
 
 # Julearn 
 from julearn import run_cross_validation
@@ -10,22 +15,27 @@ from julearn.pipeline import PipelineCreator
 from julearn import scoring
 from julearn.model_selection import StratifiedBootstrap
 from julearn.stats.corrected_ttest import corrected_ttest
-from sklearn.model_selection import RepeatedKFold
-from sklearn.model_selection import RepeatedStratifiedKFold
+
 # from julearn.viz import plot_scores
 
 def main(base_path, proj, nn_mi,movies_properties,quant):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
-    #results_out_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}/ind_classification_CV_nn{nn_mi}"
 
-    #if not os.path.exists(results_out_path):
-    #    os.makedirs(results_out_path, exist_ok=True) # Create the output directory if it doesn't exist
+    results_out_path = f"{results_path}/ind_classification_CV"
+    if not os.path.exists(results_out_path):
+        os.makedirs(results_out_path, exist_ok=True) # Create the output directory if it doesn't exist
+
+    results_out_path_fi = f"{results_path}/ind_classification_CV/feature_importance"
+    if not os.path.exists(results_out_path_fi):
+        os.makedirs(results_out_path_fi, exist_ok=True) # Create the output directory if it doesn't exist
 
     ind_ex_path = f"{results_path}/individual_expression_all_nn{nn_mi}.csv"
     ind_ex_data = pd.read_csv(ind_ex_path)
     # subs = ind_ex_data["subject"].unique().tolist()
 
     sex_mapping = {1: 'male', 2: 'female'}
+
+    TOP_K = 20  # choose how many "most important" features you want to store
 
     #quant = 10
     quantile = quant*0.01
@@ -38,14 +48,15 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
 
     movies_short = movies[:-2]
 
+    all_feature_importances = []   # will hold tidy rows across all runs
 
     # Classification per Movie
     # change this if neccessary 
     
+    out_csv_mi = f"{results_out_path}/classification_CV_nn{nn_mi}.csv" 
+    out_csv_corr = f"{results_out_path}/classification_CV_corr.csv" 
+    
     for curr_mov in movies_short:
-
-        out_csv_mi = f"{results_path}/classification_CV_nn{nn_mi}.csv" 
-        out_csv_corr = f"{results_path}/classification_CV_corr.csv" 
 
         # adjust variable naming and print out results
         
@@ -64,8 +75,8 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         class_data.columns.name = None
 
         n_region_cols = class_data.shape[1] - 2
-        new_columns = ["subject", "sex"] + [f"R{i}" for i in range(1, n_region_cols + 1)]
-        class_data.columns = new_columns
+        # new_columns = ["subject", "sex"] + [f"R{i}" for i in range(1, n_region_cols + 1)]
+        # class_data.columns = new_columns
 
         inv_sex_mapping = {v: k for k, v in sex_mapping.items()}
 
@@ -102,6 +113,40 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
             cv=cv,
             scoring=scoring,
         )
+
+        # feature importance
+
+        # X_test must be the same feature columns you used in X=...
+        X_test = class_data_test[X]
+        y_test = class_data_test[y]
+
+        pi = permutation_importance(
+            model1,
+            X_test,
+            y_test,
+            scoring="balanced_accuracy",   # or "accuracy", "f1"
+            n_repeats=50,
+            random_state=0,
+            n_jobs=-1,
+        )
+
+        feat_importance = pd.Series(pi.importances_mean, index=X).sort_values(ascending=False)
+        print(feat_importance.head(20))
+
+        # build tidy table: one row per feature (top-k)
+        fi_df = feat_importance.head(TOP_K).reset_index()
+        fi_df.columns = ["feature", "importance"]
+        fi_df["rank"] = np.arange(1, len(fi_df) + 1)
+
+        # add metadata so it’s meaningful later
+        fi_df["movie"] = curr_mov                 # <-- must exist in your loop
+        fi_df["metric"] = f"nn{nn_mi}"         # <-- set this in your loop (e.g., "mi", "corr")
+        fi_df["feature_percentage"] = quant # <-- your 10/20/...
+        fi_df["model"] = "svm"
+        fi_df["scoring"] = "balanced_accuracy"
+        fi_df["n_repeats_perm"] = 50
+
+        all_feature_importances.append(fi_df)
 
         y_true = class_data_test[y].to_numpy()
         y_pred = model1.predict(class_data_test[X])
@@ -138,6 +183,15 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         write_header = (not out_path_mi.exists()) or (out_path_mi.stat().st_size == 0)
         df_row.to_csv(out_csv_mi, mode="a", header=write_header, index=False,float_format="%.2f")
 
+    feature_importance_all = pd.concat(all_feature_importances, ignore_index=True)
+
+    out_fp = f"{results_out_path_fi}/feature_importance_summary_top{quant}_nn{nn_mi}.csv"
+    feature_importance_all.to_csv(out_fp, index=False)
+    print(f"Saved feature importance table to: {out_fp}")
+
+
+    all_feature_importances = []   # will hold tidy rows across all runs
+
 
     for curr_mov in movies:
 
@@ -153,8 +207,8 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         class_data.columns.name = None
 
         n_region_cols = class_data.shape[1] - 2
-        new_columns = ["subject", "sex"] + [f"R{i}" for i in range(1, n_region_cols + 1)]
-        class_data.columns = new_columns
+        # new_columns = ["subject", "sex"] + [f"R{i}" for i in range(1, n_region_cols + 1)]
+        # class_data.columns = new_columns
 
         inv_sex_mapping = {v: k for k, v in sex_mapping.items()}
 
@@ -192,6 +246,40 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
             scoring=scoring,
         )
 
+                # feature importance
+
+        # X_test must be the same feature columns you used in X=...
+        X_test = class_data_test[X]
+        y_test = class_data_test[y]
+
+        pi = permutation_importance(
+            model1,
+            X_test,
+            y_test,
+            scoring="balanced_accuracy",   # or "accuracy", "f1"
+            n_repeats=50,
+            random_state=0,
+            n_jobs=-1,
+        )
+
+        feat_importance = pd.Series(pi.importances_mean, index=X).sort_values(ascending=False)
+        print(feat_importance.head(20))
+
+        # build tidy table: one row per feature (top-k)
+        fi_df = feat_importance.head(TOP_K).reset_index()
+        fi_df.columns = ["feature", "importance"]
+        fi_df["rank"] = np.arange(1, len(fi_df) + 1)
+
+        # add metadata so it’s meaningful later
+        fi_df["movie"] = curr_mov                 # <-- must exist in your loop
+        fi_df["metric"] = "corr"         # <-- set this in your loop (e.g., "mi", "corr")
+        fi_df["feature_percentage"] = quant # <-- your 10/20/...
+        fi_df["model"] = "svm"
+        fi_df["scoring"] = "balanced_accuracy"
+        fi_df["n_repeats_perm"] = 50
+
+        all_feature_importances.append(fi_df)
+
         y_true = class_data_test[y].to_numpy()
         y_pred = model1.predict(class_data_test[X])
 
@@ -227,6 +315,12 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         write_header = (not out_path_corr.exists()) or (out_path_corr.stat().st_size == 0)
         df_row.to_csv(out_csv_corr, mode="a", header=write_header, index=False,float_format="%.2f")
     
+
+    feature_importance_all = pd.concat(all_feature_importances, ignore_index=True)
+
+    out_fp = f"{results_out_path_fi}/feature_importance_summary_top{quant}_corr.csv"
+    feature_importance_all.to_csv(out_fp, index=False)
+    print(f"Saved feature importance table to: {out_fp}")
 
 # Execute script
 if __name__ == "__main__":
