@@ -16,10 +16,10 @@ from sklearn.model_selection import RepeatedStratifiedKFold
 
 def main(base_path, proj, nn_mi,movies_properties,quant):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
-    results_out_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}/ind_classification_CV_nn{nn_mi}"
+    #results_out_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}/ind_classification_CV_nn{nn_mi}"
 
-    if not os.path.exists(results_out_path):
-        os.makedirs(results_out_path, exist_ok=True) # Create the output directory if it doesn't exist
+    #if not os.path.exists(results_out_path):
+    #    os.makedirs(results_out_path, exist_ok=True) # Create the output directory if it doesn't exist
 
     ind_ex_path = f"{results_path}/individual_expression_all_nn{nn_mi}.csv"
     ind_ex_data = pd.read_csv(ind_ex_path)
@@ -33,8 +33,16 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
     #movies = ["dd", "s", "dps", "fg", "dmw", "lib", "tgtbtu", "ss", "rest_run-1", "rest_run-2"]
     movies = list(movies_properties.keys())
 
+    #mutual information very low for rest - therefore for now only real movies
+    #for now
+
+    movies_short = movies[:-2]
+
+
     # Classification per Movie
-    for curr_mov in movies:
+    # change this if neccessary 
+    
+    for curr_mov in movies_short:
 
         out_csv_mi = f"{results_path}/classification_CV_nn{nn_mi}.csv" 
         out_csv_corr = f"{results_path}/classification_CV_corr.csv" 
@@ -131,6 +139,7 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         df_row.to_csv(out_csv_mi, mode="a", header=write_header, index=False,float_format="%.2f")
 
 
+    for curr_mov in movies:
 
         thresh = cmp_tc_data["corr"].quantile(quantile)
 
