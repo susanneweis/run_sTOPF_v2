@@ -87,11 +87,6 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
     
     for curr_mov in movies:
 
-        # adjust variable naming and print out results
-        
-        cmp_tc_path = f"{results_path}/compare_time_courses_nn{nn_mi}/results_compare_time_courses_{curr_mov}.csv" 
-        cmp_tc_data = pd.read_csv(cmp_tc_path)
-
         curr_movie_data = ind_ex_data[ind_ex_data["movie"] == curr_mov]
 
         curr_data = curr_movie_data[["subject", "sex", "region", "fem_vs_mal_mi"]].copy()
@@ -262,27 +257,22 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
 
     for curr_mov in movies:
 
-        thresh = cmp_tc_data["corr"].quantile(quantile)
-
-        diff_regs = cmp_tc_data.loc[cmp_tc_data["corr"] < thresh, "region"].tolist()
         curr_movie_data = ind_ex_data[ind_ex_data["movie"] == curr_mov]
-        curr_mov_reg_data = curr_movie_data[curr_movie_data["region"].isin(diff_regs)]
 
-        curr_data = curr_mov_reg_data[["subject", "sex", "region", "fem_vs_mal_corr"]].copy()
+        curr_data = curr_movie_data[["subject", "sex", "region", "fem_vs_mal_corr"]].copy()
 
         class_data = curr_data.pivot(index=["subject", "sex"], columns="region", values="fem_vs_mal_corr").reset_index()
         class_data.columns.name = None
-
-        n_region_cols = class_data.shape[1] - 2
-        # new_columns = ["subject", "sex"] + [f"R{i}" for i in range(1, n_region_cols + 1)]
-        # class_data.columns = new_columns
 
         inv_sex_mapping = {v: k for k, v in sex_mapping.items()}
 
         # apply to DataFrame
         class_data["sex"] = class_data["sex"].map(inv_sex_mapping)
 
-        X = [c for c in class_data.columns if c not in ["subject", "sex"]]        
+        meta_cols = ["subject", "sex"]
+        roi_cols = [c for c in class_data.columns if c not in meta_cols]
+
+        X = [c for c in class_data.columns if c in roi_cols]  
         y = "sex"
 
         # show data type of predictors
@@ -295,6 +285,50 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
             stratify=class_data[y],   # important for classification
         )
 
+        roi_data_train = class_data_train[roi_cols]
+        X_roi_train = roi_data_train.to_numpy()
+
+        roi_corr = np.corrcoef(X_roi_train.T)
+
+        clustering = AgglomerativeClustering(
+            n_clusters=K_clust,
+            metric="precomputed",
+            linkage="average"
+        )
+
+        roi_labels = clustering.fit_predict(1 - roi_corr)
+
+        # roi_cols must match the columns you used to build roi_corr / clustering
+        # e.g. roi_cols = [c for c in class_data_train.columns if c not in ["participant", "sex"]]
+
+        train_cluster_data = collapse_rois_to_clusters(
+            df=class_data_train,
+            roi_cols=roi_cols,
+            roi_labels=roi_labels,
+            id_col="subject",
+            sex_col="sex",
+            agg="mean",
+            prefix="cluster_"
+        )
+
+        test_cluster_data = collapse_rois_to_clusters(
+            df=class_data_test,
+            roi_cols=roi_cols,
+            roi_labels=roi_labels,
+            id_col="subject",
+            sex_col="sex",
+            agg="mean",
+            prefix="cluster_"
+        )
+
+        meta_cols = ["subject", "sex"]
+        roi_cols = [c for c in train_cluster_data.columns if c not in meta_cols]
+
+        X = [c for c in train_cluster_data.columns if c in roi_cols]        
+        y = "sex"
+        X_types = {"continuous": X}
+
+
         cv = RepeatedKFold(n_splits=10, n_repeats=1, random_state=22)
         scoring = ["accuracy", "balanced_accuracy", "f1"]
 
@@ -302,7 +336,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
             X=X,
             y=y,
             X_types=X_types, 
-            data=class_data_train,
+            data=train_cluster_data,
             model="svm",
             problem_type="classification",
             seed=200,
@@ -313,11 +347,11 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
             scoring=scoring,
         )
 
-                # feature importance
+        # feature importance
 
         # X_test must be the same feature columns you used in X=...
-        X_test = class_data_test[X]
-        y_test = class_data_test[y]
+        X_test = test_cluster_data[X]
+        y_test = test_cluster_data[y]
 
         pi = permutation_importance(
             model1,
@@ -333,22 +367,22 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
         print(feat_importance.head(20))
 
         # build tidy table: one row per feature (top-k)
-        fi_df = feat_importance.head(TOP_K).reset_index()
+        fi_df = feat_importance.reset_index()
         fi_df.columns = ["feature", "importance"]
         fi_df["rank"] = np.arange(1, len(fi_df) + 1)
 
         # add metadata so it’s meaningful later
         fi_df["movie"] = curr_mov                 # <-- must exist in your loop
         fi_df["metric"] = "corr"         # <-- set this in your loop (e.g., "mi", "corr")
-        fi_df["feature_percentage"] = quant # <-- your 10/20/...
+        fi_df["cluster_num"] = K_clust # <-- your 10/20/...
         fi_df["model"] = "svm"
         fi_df["scoring"] = "balanced_accuracy"
         fi_df["n_repeats_perm"] = 50
 
         all_feature_importances.append(fi_df)
 
-        y_true = class_data_test[y].to_numpy()
-        y_pred = model1.predict(class_data_test[X])
+        y_true = test_cluster_data[y].to_numpy()
+        y_pred = model1.predict(test_cluster_data[X])
 
         acc  = accuracy_score(y_true, y_pred)
         bacc = balanced_accuracy_score(y_true, y_pred)
@@ -360,7 +394,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
         #print("Mean false alarm rate:", scores1["test_f1"].mean())
     
         row = {
-            "top_reg": quant,
+            "cluster_num": K_clust,
             "movie": curr_mov,
             "train_score_mean": float(scores1["train_accuracy"].mean()),
             "cv_accuracy_mean": float(scores1["test_accuracy"].mean()),
@@ -385,7 +419,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
 
     feature_importance_all = pd.concat(all_feature_importances, ignore_index=True)
 
-    out_fp = f"{results_out_path_fi}/feature_importance_summary_top{quant}_corr.csv"
+    out_fp = f"{results_out_path_fi}/feature_importance_summary_{K_clust}cluster_corr.csv"
     feature_importance_all.to_csv(out_fp, index=False)
     print(f"Saved feature importance table to: {out_fp}")
 

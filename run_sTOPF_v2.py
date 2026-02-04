@@ -105,7 +105,6 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 #for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]: 
 #    _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
 #for top_reg in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]: 
-#    _6b_ind_classification_CV.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
-
-cluster_num = 10 
-_7b_ind_classification_CV_clustered.main(base_path, project_ext, nn_mi, mov_prop, cluster_num)
+#    _6b_ind_classification_CV.main(base_path, project_ext, nn_mi, mov_prop,top_reg) 
+for top_reg in [5, 10, 15, 20, 25, 30, 35, 40]: 
+    _7b_ind_classification_CV_clustered.main(base_path, project_ext, nn_mi, mov_prop, cluster_num)
