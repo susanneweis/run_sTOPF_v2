@@ -108,4 +108,4 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 #    _6b_ind_classification_CV.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
 
 cluster_num = 10 
-_7b_ind_classification_CV_clustered(base_path, project_ext, nn_mi, mov_prop, cluster_num)
+_7b_ind_classification_CV_clustered.main(base_path, project_ext, nn_mi, mov_prop, cluster_num)
