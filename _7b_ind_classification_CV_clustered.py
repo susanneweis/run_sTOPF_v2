@@ -82,8 +82,8 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
     # Classification per Movie
     # change this if neccessary 
     
-    out_csv_mi = f"{results_out_path}/classification_CV_nn{nn_mi}_clustered.csv" 
-    out_csv_corr = f"{results_out_path}/classification_CV_corr_clustered.csv" 
+    out_csv_mi = f"{results_out_path}/classification_CV_nn{nn_mi}_clustered_{K_clust}clust.csv" 
+    out_csv_corr = f"{results_out_path}/classification_CV_corr_clustered_{K_clust}clust.csv" 
     
     for curr_mov in movies:
 
