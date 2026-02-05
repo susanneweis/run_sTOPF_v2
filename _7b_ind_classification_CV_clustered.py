@@ -51,6 +51,51 @@ def collapse_rois_to_clusters(df, roi_cols, roi_labels, id_col, sex_col, agg, pr
 
     return out
 
+def save_clustering(roi_name, roi_lab, roi_corr, metric, K_cluster, out_path):
+    roi_df = pd.DataFrame({
+        "roi_name": roi_name,
+        "cluster": roi_lab
+    })
+
+    cluster_out_path = f"{out_path}/clusters"
+    if not os.path.exists(cluster_out_path):
+        os.makedirs(cluster_out_path, exist_ok=True) # Create the output directory if it doesn't exist
+
+
+    # optional but useful
+    roi_df["is_noise"] = roi_df["cluster"] == -1
+    
+    roi_df.to_csv(f"{cluster_out_path}/roi_cluster_labels_{K_cluster}_clusters_{metric}.csv", index=False)
+
+    roi_corr_df = pd.DataFrame(
+        roi_corr,
+        index=roi_name,
+        columns=roi_name
+    )
+    
+    roi_corr_df.to_csv(f"{cluster_out_path}/roi_cluster_correlation_{K_cluster}_clusters_{metric}.csv", index=False)
+
+    cluster_summary = (
+        roi_df
+        .groupby("cluster")
+        .size()
+        .reset_index(name="n_rois")
+    )
+
+    cluster_summary.to_csv(f"{cluster_out_path}/cluster_summary_{K_cluster}_clusters_{metric}.csv", index=False)
+
+    order = np.argsort(roi_lab)
+    roi_corr_sorted = roi_corr[order][:, order]
+    roi_names_sorted = np.array(roi_name)[order]
+
+    roi_corr_sorted_df = pd.DataFrame(
+        roi_corr_sorted,
+        index=roi_names_sorted,
+        columns=roi_names_sorted
+    )
+
+    roi_corr_sorted_df.to_csv(f"{cluster_out_path}/roi_cluster_correlation_sorted_{K_cluster}_clusters_{metric}.csv",  index=False)
+
 
 def main(base_path, proj, nn_mi,movies_properties, K_clust):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
@@ -130,6 +175,8 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
 
         # roi_cols must match the columns you used to build roi_corr / clustering
         # e.g. roi_cols = [c for c in class_data_train.columns if c not in ["participant", "sex"]]
+
+        save_clustering(roi_cols, roi_labels, roi_corr, f"nn{nn_mi}", K_clust, results_out_path)
 
         train_cluster_data = collapse_rois_to_clusters(
             df=class_data_train,
@@ -300,6 +347,8 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
 
         # roi_cols must match the columns you used to build roi_corr / clustering
         # e.g. roi_cols = [c for c in class_data_train.columns if c not in ["participant", "sex"]]
+
+        save_clustering(roi_cols, roi_labels, roi_corr, "corr", K_clust, results_out_path)
 
         train_cluster_data = collapse_rois_to_clusters(
             df=class_data_train,
