@@ -51,13 +51,13 @@ def collapse_rois_to_clusters(df, roi_cols, roi_labels, id_col, sex_col, agg, pr
 
     return out
 
-def save_clustering(roi_name, roi_lab, roi_corr, metric, K_cluster, out_path):
+def save_clustering(roi_name, roi_lab, roi_corr, metric, K_cluster, out_path, movie):
     roi_df = pd.DataFrame({
         "roi_name": roi_name,
         "cluster": roi_lab
     })
 
-    cluster_out_path = f"{out_path}/clusters"
+    cluster_out_path = f"{out_path}/clusters/{movie}"
     if not os.path.exists(cluster_out_path):
         os.makedirs(cluster_out_path, exist_ok=True) # Create the output directory if it doesn't exist
 
@@ -176,7 +176,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
         # roi_cols must match the columns you used to build roi_corr / clustering
         # e.g. roi_cols = [c for c in class_data_train.columns if c not in ["participant", "sex"]]
 
-        save_clustering(roi_cols, roi_labels, roi_corr, f"nn{nn_mi}", K_clust, results_out_path)
+        save_clustering(roi_cols, roi_labels, roi_corr, f"nn{nn_mi}", K_clust, results_out_path, curr_mov)
 
         train_cluster_data = collapse_rois_to_clusters(
             df=class_data_train,
@@ -348,7 +348,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
         # roi_cols must match the columns you used to build roi_corr / clustering
         # e.g. roi_cols = [c for c in class_data_train.columns if c not in ["participant", "sex"]]
 
-        save_clustering(roi_cols, roi_labels, roi_corr, "corr", K_clust, results_out_path)
+        save_clustering(roi_cols, roi_labels, roi_corr, "corr", K_clust, results_out_path, curr_mov)
 
         train_cluster_data = collapse_rois_to_clusters(
             df=class_data_train,
