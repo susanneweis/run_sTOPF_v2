@@ -8,6 +8,7 @@ from sklearn.model_selection import RepeatedKFold
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import HDBSCAN
+import umap
 
 import numpy as np
 import pandas as pd
@@ -101,7 +102,7 @@ def save_clustering(roi_name, roi_lab, roi_corr, metric, out_path, movie):
 def main(base_path, proj, nn_mi,movies_properties):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
 
-    results_out_path = f"{results_path}/ind_classification_CV_clustered_HDBSCAN"
+    results_out_path = f"{results_path}/ind_classification_CV_clustered_UMAP_HDBSCAN"
     if not os.path.exists(results_out_path):
         os.makedirs(results_out_path, exist_ok=True) # Create the output directory if it doesn't exist
 
@@ -167,14 +168,22 @@ def main(base_path, proj, nn_mi,movies_properties):
         roi_corr = np.corrcoef(X_roi_train.T)
         D = 1 - roi_corr 
 
-        clusterer = HDBSCAN(
+        um = umap.UMAP(
             metric="precomputed",
-            min_cluster_size=10,      # try 8–25
-            min_samples=2,            # try 1–10 (higher = more conservative)
-            cluster_selection_method="eom"
+            n_neighbors=30,    # try 15–50
+            min_dist=0.0,
+            n_components=10,   # NOT 2 for clustering
+            random_state=0
         )
 
-        roi_labels = clusterer.fit_predict(D)    
+        Z = um.fit_transform(D)   # D = 1 - abs(roi_corr)
+
+        clusterer = HDBSCAN(
+            min_cluster_size=10,
+            min_samples=2
+        )
+
+        roi_labels = clusterer.fit_predict(Z) 
 
         # roi_cols must match the columns you used to build roi_corr / clustering
         # e.g. roi_cols = [c for c in class_data_train.columns if c not in ["participant", "sex"]]
@@ -339,14 +348,23 @@ def main(base_path, proj, nn_mi,movies_properties):
         roi_corr = np.corrcoef(X_roi_train.T)
         D = 1 - roi_corr 
 
-        clusterer = HDBSCAN(
+        um = umap.UMAP(
             metric="precomputed",
-            min_cluster_size=10,      # try 8–25
-            min_samples=2,            # try 1–10 (higher = more conservative)
-            cluster_selection_method="eom"
+            n_neighbors=30,    # try 15–50
+            min_dist=0.0,
+            n_components=10,   # NOT 2 for clustering
+            random_state=0
         )
 
-        roi_labels = clusterer.fit_predict(D)    
+        Z = um.fit_transform(D)   # D = 1 - abs(roi_corr)
+
+        clusterer = HDBSCAN(
+            min_cluster_size=10,
+            min_samples=2
+        )
+
+        roi_labels = clusterer.fit_predict(Z)
+   
 
         # roi_cols must match the columns you used to build roi_corr / clustering
         # e.g. roi_cols = [c for c in class_data_train.columns if c not in ["participant", "sex"]]
