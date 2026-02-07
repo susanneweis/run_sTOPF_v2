@@ -167,7 +167,7 @@ def main(base_path, proj, nn_mi,movies_properties):
     if not os.path.exists(results_out_path):
         os.makedirs(results_out_path, exist_ok=True) # Create the output directory if it doesn't exist
 
-    results_out_path_fi = f"{results_path}/ind_classification_CV_clustered/feature_importance"
+    results_out_path_fi = f"{results_out_path}/feature_importance"
     if not os.path.exists(results_out_path_fi):
         os.makedirs(results_out_path_fi, exist_ok=True) # Create the output directory if it doesn't exist
 
