@@ -8,6 +8,8 @@ from sklearn.model_selection import RepeatedKFold
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import HDBSCAN
+import matplotlib.pyplot as plt
+from matplotlib import colormaps
 import umap
 
 import numpy as np
@@ -98,6 +100,61 @@ def save_clustering(roi_name, roi_lab, roi_corr, metric, out_path, movie):
 
     roi_corr_sorted_df.to_csv(f"{cluster_out_path}/roi_cluster_correlation_sorted_HDBSCAN_clusters_{metric}.csv",  index=False)
 
+def plot_clusters(D, out_file, roi_labels):
+    # 1) 2D embedding for visualization
+    um2 = umap.UMAP(
+        metric="precomputed",
+        n_neighbors=30,
+        min_dist=0.0,
+        n_components=2,
+        random_state=0
+    )
+    Z2 = um2.fit_transform(D)
+
+    # 2) Colors from HDBSCAN clustering (done in 10D)
+    labels = roi_labels
+    is_noise = labels == -1
+    clusters = np.unique(labels[~is_noise])
+    n_clusters = len(clusters)
+
+  
+    cmap = colormaps["tab20"]
+
+    color_map = {
+        c: cmap(i / max(n_clusters - 1, 1))
+        for i, c in enumerate(clusters)
+    }
+
+    colors = np.array([
+        color_map.get(l, (0.6, 0.6, 0.6, 0.7))  # grey for noise
+        for l in labels
+]   )
+
+    # 3) Plot
+    plt.figure(figsize=(6, 5))
+    plt.scatter(Z2[:, 0], Z2[:, 1], c=colors, s=25, linewidths=0)
+
+    plt.title("UMAP (2D) colored by HDBSCAN clusters (10D)")
+    plt.xlabel("UMAP-1")
+    plt.ylabel("UMAP-2")
+
+    # Optional legend
+    if n_clusters <= 20:
+        for c in clusters:
+            plt.scatter([], [], c=[color_map[c]], label=f"cluster {c}", s=40)
+        if np.any(is_noise):
+            plt.scatter([], [], c=[(0.6, 0.6, 0.6, 0.7)], label="noise (-1)", s=40)
+        plt.legend(frameon=False, bbox_to_anchor=(1.02, 1), loc="upper left")
+
+    plt.tight_layout()
+
+    # 4) Save (IMPORTANT: before plt.show())
+    plt.savefig(out_file, dpi=300, bbox_inches="tight")
+    #plt.show()
+
+    print(f"Saved figure to: {out_file}")
+
+
 
 def main(base_path, proj, nn_mi,movies_properties):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
@@ -184,6 +241,10 @@ def main(base_path, proj, nn_mi,movies_properties):
         )
 
         roi_labels = clusterer.fit_predict(Z) 
+
+        plotfile = f"{results_out_path}/clusters/{curr_mov}/roi_cluster_correlation_sorted_HDBSCAN_clusters_nn{nn_mi}.png"
+        plot_clusters(D, plotfile, roi_labels)
+
 
         # roi_cols must match the columns you used to build roi_corr / clustering
         # e.g. roi_cols = [c for c in class_data_train.columns if c not in ["participant", "sex"]]
@@ -364,6 +425,9 @@ def main(base_path, proj, nn_mi,movies_properties):
         )
 
         roi_labels = clusterer.fit_predict(Z)
+
+        plotfile = f"{results_out_path}/clusters/{movie}/roi_cluster_correlation_sorted_HDBSCAN_clusters_corr.png"
+        plot_clusters(D, plotfile, roi_labels)
    
 
         # roi_cols must match the columns you used to build roi_corr / clustering
