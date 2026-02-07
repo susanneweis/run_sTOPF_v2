@@ -69,7 +69,7 @@ def save_clustering(roi_name, roi_lab, roi_corr, metric, out_path, movie):
     # optional but useful
     roi_df["is_noise"] = roi_df["cluster"] == -1
     
-    roi_df.to_csv(f"{cluster_out_path}/roi_cluster_labels_HDBSCAN_clusters_{metric}.csv", index=False)
+    roi_df.to_csv(f"{cluster_out_path}/roi_cluster_labels_UMAP_HDBSCAN_clusters_{metric}.csv", index=False)
 
     roi_corr_df = pd.DataFrame(
         roi_corr,
@@ -77,7 +77,7 @@ def save_clustering(roi_name, roi_lab, roi_corr, metric, out_path, movie):
         columns=roi_name
     )
     
-    roi_corr_df.to_csv(f"{cluster_out_path}/roi_cluster_correlation_HDBSCAN_clusters_{metric}.csv", index=False)
+    roi_corr_df.to_csv(f"{cluster_out_path}/roi_cluster_correlation_UMAP_HDBSCAN_clusters_{metric}.csv", index=False)
 
     cluster_summary = (
         roi_df
@@ -86,7 +86,7 @@ def save_clustering(roi_name, roi_lab, roi_corr, metric, out_path, movie):
         .reset_index(name="n_rois")
     )
 
-    cluster_summary.to_csv(f"{cluster_out_path}/cluster_summary_HDBSCAN_clusters_{metric}.csv", index=False)
+    cluster_summary.to_csv(f"{cluster_out_path}/cluster_summary_UMAP_HDBSCAN_clusters_{metric}.csv", index=False)
 
     order = np.argsort(roi_lab)
     roi_corr_sorted = roi_corr[order][:, order]
@@ -98,7 +98,7 @@ def save_clustering(roi_name, roi_lab, roi_corr, metric, out_path, movie):
         columns=roi_names_sorted
     )
 
-    roi_corr_sorted_df.to_csv(f"{cluster_out_path}/roi_cluster_correlation_sorted_HDBSCAN_clusters_{metric}.csv",  index=False)
+    roi_corr_sorted_df.to_csv(f"{cluster_out_path}/roi_cluster_correlation_sorted_UMAP_HDBSCAN_clusters_{metric}.csv",  index=False)
 
 def plot_clusters(D, out_file, roi_labels):
     # 1) 2D embedding for visualization
@@ -186,8 +186,8 @@ def main(base_path, proj, nn_mi,movies_properties):
     # Classification per Movie
     # change this if neccessary 
     
-    out_csv_mi = f"{results_out_path}/classification_CV_nn{nn_mi}_clustered_HDBSCAN.csv" 
-    out_csv_corr = f"{results_out_path}/classification_CV_corr_clustered_HDBSCAN.csv" 
+    out_csv_mi = f"{results_out_path}/classification_CV_nn{nn_mi}_clustered_UMAP_HDBSCAN.csv" 
+    out_csv_corr = f"{results_out_path}/classification_CV_corr_clustered_UMAP_HDBSCAN.csv" 
     
     for curr_mov in movies:
 
@@ -248,7 +248,7 @@ def main(base_path, proj, nn_mi,movies_properties):
 
         roi_labels = clusterer.fit_predict(Z) 
 
-        plotfile = f"{results_out_path}/clusters/{curr_mov}/roi_cluster_correlation_sorted_HDBSCAN_clusters_nn{nn_mi}.png"
+        plotfile = f"{results_out_path}/clusters/{curr_mov}/roi_cluster_correlation_sorted_UMAP_HDBSCAN_clusters_nn{nn_mi}.png"
         plot_clusters(D, plotfile, roi_labels)
 
 
@@ -371,7 +371,7 @@ def main(base_path, proj, nn_mi,movies_properties):
 
     feature_importance_all = pd.concat(all_feature_importances, ignore_index=True)
 
-    out_fp = f"{results_out_path_fi}/feature_importance_summary_HDBSCAN_nn{nn_mi}.csv"
+    out_fp = f"{results_out_path_fi}/feature_importance_summary_UMAP_HDBSCAN_nn{nn_mi}.csv"
     feature_importance_all.to_csv(out_fp, index=False)
     print(f"Saved feature importance table to: {out_fp}")
 
@@ -433,7 +433,7 @@ def main(base_path, proj, nn_mi,movies_properties):
 
         roi_labels = clusterer.fit_predict(Z)
 
-        plotfile = f"{results_out_path}/clusters/{curr_mov}/roi_cluster_correlation_sorted_HDBSCAN_clusters_corr.png"
+        plotfile = f"{results_out_path}/clusters/{curr_mov}/roi_cluster_correlation_sorted_UMAP_HDBSCAN_clusters_corr.png"
         plot_clusters(D, plotfile, roi_labels)
    
 
@@ -558,7 +558,7 @@ def main(base_path, proj, nn_mi,movies_properties):
 
     feature_importance_all = pd.concat(all_feature_importances, ignore_index=True)
 
-    out_fp = f"{results_out_path_fi}/feature_importance_summary_HDBSCAN_corr.csv"
+    out_fp = f"{results_out_path_fi}/feature_importance_summary_UMAP_HDBSCAN_corr.csv"
     feature_importance_all.to_csv(out_fp, index=False)
     print(f"Saved feature importance table to: {out_fp}")
 
