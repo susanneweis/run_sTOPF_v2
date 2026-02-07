@@ -108,7 +108,7 @@ def main(base_path,proj,nn_mi,movies_properties):
         outpath = f"{results_out_path}/{mv_str}"
         os.makedirs(outpath, exist_ok=True)
 
-        cluster_assign_file = f"{results_path}/{mv_str}/roi_cluster_labels_HDBSCAN_clusters_corr.csv"
+        cluster_assign_file = f"{results_path}/{mv_str}/roi_cluster_labels_UMAP_HDBSCAN_clusters_corr.csv"
         cluster_assign = pd.read_csv(cluster_assign_file)
         
         n_roi = cluster_assign["roi_name"].nunique()
@@ -119,9 +119,30 @@ def main(base_path,proj,nn_mi,movies_properties):
 
         # Define output filename
 
-        title = f"Clusters {mv_str} HDBSCAN Clusters"
+        title = f"Clusters {mv_str} UMAP HDBSCAN Clusters corr"
         
-        output_file = f"{outpath}/{mv_str}_HDBSCAN_clusters.png"
+        output_file = f"{outpath}/{mv_str}_UMAP_HDBSCAN_clusters_corr.png"
+
+        min_val = roi_values.min()
+        max_val = roi_values.max()
+        
+        create_glassbrains(roi_values, atlas_path, n_roi, title,output_file,min_val,max_val)   
+
+
+        cluster_assign_file = f"{results_path}/{mv_str}/roi_cluster_labels_UMAP_HDBSCAN_clusters_nn{nn_mi}.csv"
+        cluster_assign = pd.read_csv(cluster_assign_file)
+        
+        n_roi = cluster_assign["roi_name"].nunique()
+        
+        cluster_brain, region_to_id_f = assign_roi_ids(cluster_assign)
+        
+        roi_values = fill_glassbrain(n_roi,cluster_brain,"cluster")
+
+        # Define output filename
+
+        title = f"Clusters {mv_str} UMAP HDBSCAN Clusters nn{nn_mi}"
+        
+        output_file = f"{outpath}/{mv_str}_UMAP_HDBSCAN_clusters_nn{nn_mi}.png"
 
         min_val = roi_values.min()
         max_val = roi_values.max()
