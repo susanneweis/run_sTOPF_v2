@@ -119,52 +119,36 @@ def main(base_path,proj,nn_mi,movies_properties,k_clust):
 
         # Define output filename
 
-        title = f"Clusters {mv_str} {k_clust} Clusters"
+        title = f"Clusters {mv_str} {k_clust} Clusters corr"
         
-        output_file = f"{outpath}/{mv_str}_{k_clust}_clusters.png"
+        output_file = f"{outpath}/{mv_str}_{k_clust}_clusters_corr.png"
 
         min_val = roi_values.min()
         max_val = roi_values.max()
         
         create_glassbrains(roi_values, atlas_path, n_roi, title,output_file,min_val,max_val)
 
-        test = 5
+        cluster_assign_file = f"{results_path}/{mv_str}/roi_cluster_labels_{k_clust}_clusters_nn{nn_mi}.csv"
+        cluster_assign = pd.read_csv(cluster_assign_file)
+        
+        n_roi = cluster_assign["roi_name"].nunique()
+        
+        cluster_brain, region_to_id_f = assign_roi_ids(cluster_assign)
+        
+        roi_values = fill_glassbrain(n_roi,cluster_brain,"cluster")
 
-                # ##### Brain maps MI
+        # Define output filename
 
-                # n_roi = sub_brain["region"].nunique()
+        title = f"Clusters {mv_str} {k_clust} Clusters nn{nn_mi}"
+        
+        output_file = f"{outpath}/{mv_str}_{k_clust}_clusters_nn{nn_mi}.png"
 
-                # roi_values = fill_glassbrain(n_roi,sub_brain,"fem_vs_mal_mi")
+        min_val = roi_values.min()
+        max_val = roi_values.max()
+        
+        create_glassbrains(roi_values, atlas_path, n_roi, title,output_file,min_val,max_val)
 
-                # mean_diff_mi = sub_brain["fem_vs_mal_mi"].mean()
-                # # Define output filename
-                # title = f"Female vs male MI {mv_str} {subj} {sub_sex}. Score: {mean_diff_mi:.2f}"
-                # output_file = f"{outpath}/{mv_str}_ind_expression_mi_{mv_str}_{subj}.png"
-                # # output_file = os.path.join(outpath, f"{mv_str}_ind_expression{mv_str}_{subj}.png")
-
-                # min_val = sub_brain["fem_vs_mal_mi"].min()
-                # max_val = sub_brain["fem_vs_mal_mi"].max()
-
-                # create_glassbrains(roi_values, atlas_path, n_roi, title,output_file,min_val,max_val)
-
-                # ##### Brain maps Regression
-
-                # n_roi = sub_brain["region"].nunique()
-
-                # roi_values = fill_glassbrain(n_roi,sub_brain,"fem_vs_mal_regr")
-
-                # mean_diff_regr = sub_brain["fem_vs_mal_regr"].mean()
-                # # Define output filename
-                # title = f"Female vs male MI {mv_str} {subj} {sub_sex}. Score: {mean_diff_regr:.2f}"
-                # output_file = f"{outpath}/{mv_str}_ind_expression_regr_{mv_str}_{subj}.png"
-                # # output_file = os.path.join(outpath, f"{mv_str}_ind_expression{mv_str}_{subj}.png")
-
-                # min_val = sub_brain["fem_vs_mal_regr"].min()
-                # max_val = sub_brain["fem_vs_mal_regr"].max()
-
-                # create_glassbrains(roi_values, atlas_path, n_roi, title,output_file,min_val,max_val)
-
-
+        
 
 
 # Execute script
