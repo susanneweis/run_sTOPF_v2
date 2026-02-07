@@ -426,7 +426,7 @@ def main(base_path, proj, nn_mi,movies_properties):
 
         roi_labels = clusterer.fit_predict(Z)
 
-        plotfile = f"{results_out_path}/clusters/{movie}/roi_cluster_correlation_sorted_HDBSCAN_clusters_corr.png"
+        plotfile = f"{results_out_path}/clusters/{curr_mov}/roi_cluster_correlation_sorted_HDBSCAN_clusters_corr.png"
         plot_clusters(D, plotfile, roi_labels)
    
 
