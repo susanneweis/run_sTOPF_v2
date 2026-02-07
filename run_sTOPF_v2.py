@@ -113,8 +113,8 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 #    _6b_ind_classification_CV.main(base_path, project_ext, nn_mi, mov_prop,top_reg) 
 #for cluster_num in [10, 20, 30, 40]: 
 #   _7b_ind_classification_CV_clustered.main(base_path, project_ext, nn_mi, mov_prop, cluster_num)
-_7c_ind_classification_CV_clustered_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
-#_7d_ind_classification_CV_clustered_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
+#_7c_ind_classification_CV_clustered_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
+_7d_ind_classification_CV_clustered_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 #for cluster_num in [10, 20, 30, 40]: 
 #    _8b_sTOPF_visualize_cluster_glass_brains.main(base_path,project_ext,nn_mi,mov_prop,cluster_num)
 #_8c_sTOPF_visualize_cluster_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)

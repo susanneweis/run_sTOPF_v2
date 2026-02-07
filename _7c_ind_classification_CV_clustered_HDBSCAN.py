@@ -370,6 +370,10 @@ def main(base_path, proj, nn_mi,movies_properties):
 
     for curr_mov in movies:
 
+        cluster_out_path = f"{results_out_path}/clusters/{curr_mov}"
+        if not os.path.exists(cluster_out_path):
+            os.makedirs(cluster_out_path, exist_ok=True) # Create the output directory if it doesn't exist
+
         curr_movie_data = ind_ex_data[ind_ex_data["movie"] == curr_mov]
 
         curr_data = curr_movie_data[["subject", "sex", "region", "fem_vs_mal_corr"]].copy()
