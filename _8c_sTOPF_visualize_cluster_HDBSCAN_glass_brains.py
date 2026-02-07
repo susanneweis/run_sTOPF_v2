@@ -59,37 +59,38 @@ def fill_glassbrain(n_r,res_df,column):
 
 def create_glassbrains(vals, at_path, nrois, title_str,o_file,min_val,max_val):
     
-     # Create image
-    img = create_img_for_glassbrain_plot(vals, at_path, nrois)
+    if min_val < max_val:
+        # Create image
+        img = create_img_for_glassbrain_plot(vals, at_path, nrois)
 
-    # Define output filename
+        # Define output filename
 
-    cmap = cm.RdBu_r  # Diverging colormap with blue (negative) and red (positive)
+        cmap = cm.RdBu_r  # Diverging colormap with blue (negative) and red (positive)
 
-    n_labels = int(max_val - min_val +1)
+        n_labels = int(max_val - min_val +1)
 
-    # create a discrete colormap
-    cmap = colors.ListedColormap(
-        plt.cm.tab20(np.linspace(0, 1, n_labels))
-    )
+        # create a discrete colormap
+        cmap = colors.ListedColormap(
+           plt.cm.tab20(np.linspace(0, 1, n_labels))
+        )
                 
-    # Plot and save glass brain
-    #plot_glass_brain(img, threshold=0, vmax=max_val, vmin=min_val,display_mode='lyrz', colorbar=True, cmap = cmap, title=title_str, plot_abs=False)
+        # Plot and save glass brain
+        #plot_glass_brain(img, threshold=0, vmax=max_val, vmin=min_val,display_mode='lyrz', colorbar=True, cmap = cmap, title=title_str, plot_abs=False)
 
-    plot_glass_brain(
-        img,
-        cmap=cmap,
-        vmin=min_val - 0.5,
-        vmax=max_val + 0.5,
-        colorbar=True,
-        title=title_str,
-        plot_abs=False
-    )   
+        plot_glass_brain(
+            img,
+            cmap=cmap,
+            vmin=min_val - 0.5,
+            vmax=max_val + 0.5,
+            colorbar=True,
+            title=title_str,
+            plot_abs=False
+        )   
 
-    plt.savefig(o_file, bbox_inches='tight',dpi=300)
-    plt.close()
+        plt.savefig(o_file, bbox_inches='tight',dpi=300)
+        plt.close()
     
-    print(f"Saved brain map: {o_file}")
+        print(f"Saved brain map: {o_file}")
 
 
 def main(base_path,proj,nn_mi,movies_properties):
