@@ -7,6 +7,10 @@ from sklearn.inspection import permutation_importance
 from sklearn.model_selection import RepeatedKFold
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.cluster import AgglomerativeClustering
+import matplotlib.pyplot as plt
+from matplotlib import colormaps
+import umap
+
 
 import numpy as np
 import pandas as pd
@@ -232,6 +236,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
 
         roi_labels = clustering.fit_predict(1 - roi_corr)
         
+        D = 1 - roi_corr 
         plotfile = f"{results_out_path}/clusters/{curr_mov}/roi_cluster_correlation_sorted_{K_clust}_clusters_nn{nn_mi}.png"
         plot_clusters(D, plotfile, roi_labels)
 
@@ -407,6 +412,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
 
         roi_labels = clustering.fit_predict(1 - roi_corr)
 
+        D = 1 - roi_corr 
         plotfile = f"{results_out_path}/clusters/{curr_mov}/roi_cluster_correlation_sorted_{K_clust}_clusters_corr.png"
         plot_clusters(D, plotfile, roi_labels)
 
