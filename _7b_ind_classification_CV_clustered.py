@@ -10,6 +10,7 @@ from sklearn.cluster import AgglomerativeClustering
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
 import umap
+from sklearn.decomposition import PCA
 
 
 import numpy as np
@@ -46,14 +47,33 @@ def collapse_rois_to_clusters(df, roi_cols, roi_labels, id_col, sex_col, agg, pr
     clusters = np.unique(roi_labels)
     for k in clusters:
         mask = roi_labels == k
+        Xk = X[:, mask]
+        colname = f"{prefix}_{int(k):02d}"
+
         if agg == "mean":
-            out[f"{prefix}_{int(k):02d}"] = X[:, mask].mean(axis=1)
+            out[colname] = Xk.mean(axis=1)
         elif agg == "median":
-            out[f"{prefix}_{int(k):02d}"] = np.median(X[:, mask], axis=1)
+            out[colname] = np.median(Xk, axis=1)
+        elif agg in ("pc1", "pca1", "first_pc"):
+            # If the cluster only has 1 ROI, PC1 is just that ROI.
+            if Xk.shape[1] == 1:
+                out[colname] = Xk[:, 0]
+            else:
+                # PCA across subjects; sklearn centers columns automatically.
+                pca = PCA(n_components=1, random_state=0)
+                scores = pca.fit_transform(Xk).ravel()
+
+                # Fix arbitrary sign flip of PCA for reproducibility/interpretability
+                # (choose a consistent orientation)
+                if pca.components_[0].sum() < 0:
+                    scores *= -1
+
+                out[colname] = scores
         else:
-            raise ValueError("agg must be 'mean' or 'median'")
+            raise ValueError("agg must be 'mean', 'median', or 'pc1'")
 
     return out
+
 
 def save_clustering(roi_name, roi_lab, roi_corr, metric, K_cluster, out_path, movie):
     roi_df = pd.DataFrame({
@@ -251,7 +271,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
             roi_labels=roi_labels,
             id_col="subject",
             sex_col="sex",
-            agg="mean",
+            agg="pca1",
             prefix="cluster_"
         )
 
@@ -261,7 +281,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
             roi_labels=roi_labels,
             id_col="subject",
             sex_col="sex",
-            agg="mean",
+            agg="pca1",
             prefix="cluster_"
         )
 
@@ -428,7 +448,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
             roi_labels=roi_labels,
             id_col="subject",
             sex_col="sex",
-            agg="mean",
+            agg="pca1",
             prefix="cluster_"
         )
 
@@ -438,7 +458,7 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
             roi_labels=roi_labels,
             id_col="subject",
             sex_col="sex",
-            agg="mean",
+            agg="pca1",
             prefix="cluster_"
         )
 
