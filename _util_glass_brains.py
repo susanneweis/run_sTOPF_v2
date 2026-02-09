@@ -66,16 +66,15 @@ def fill_glassbrain(n_r,res_df,column):
             roi_values[region_index] = row[column]
     return roi_values
 
-def create_glassbrains(value_file, value_name, roi_name_file, at_path, title_str,out_path, name, min_val,max_val):
+def create_glassbrains(value_file, value_name, value_roi_name, roi_names, at_path, title_str,out_path, name):
 
     roi_data = pd.read_csv(value_file)
         
-    n_roi = roi_values_file[value_name].nunique()
+    n_roi = roi_data[value_roi_name].nunique()
         
-    roi_names = pd.read_csv(roi_name_file)[value_name].tolist()
     cluster_brain, region_to_id_f  = assign_roi_ids(roi_data, roi_names)
         
-    roi_values = fill_glassbrain(n_roi,cluster_brain,"cluster")
+    roi_values = fill_glassbrain(n_roi,cluster_brain,value_name)
         
     output_file = f"{out_path}/glassbrain_{name}.png"
 
@@ -83,31 +82,29 @@ def create_glassbrains(value_file, value_name, roi_name_file, at_path, title_str
     max_val = roi_values.max()
 
      # Create image
-    img = create_img_for_glassbrain_plot(vals, at_path, nrois)
+    img = create_img_for_glassbrain_plot(roi_values, at_path, n_roi)
 
     # Define output filename
 
-    cmap = cm.RdBu_r  # Diverging colormap with blue (negative) and red (positive)
+    # roi_values should be integer-ish cluster IDs
+    n_labels = int(len(np.unique(roi_values[np.isfinite(roi_values)])))
 
-    n_labels = int(max_val - min_val +1)
-
-    # create a discrete colormap
     cmap = colors.ListedColormap(
-        plt.cm.tab20(np.linspace(0, 1, n_labels))
+        np.vstack([
+            plt.cm.tab20(np.linspace(0, 1, 20)),
+            plt.cm.tab20b(np.linspace(0, 1, 20)),
+        ])[:n_labels]
     )
-                
-    # Plot and save glass brain
-    #plot_glass_brain(img, threshold=0, vmax=max_val, vmin=min_val,display_mode='lyrz', colorbar=True, cmap = cmap, title=title_str, plot_abs=False)
 
     plot_glass_brain(
         img,
         cmap=cmap,
-        vmin=min_val - 0.5,
-        vmax=max_val + 0.5,
+        vmin=roi_values.min(),
+        vmax=roi_values.max(),
         colorbar=True,
         title=title_str,
         plot_abs=False
-    )   
+    )  
 
     plt.savefig(output_file, bbox_inches='tight',dpi=300)
     plt.close()
