@@ -75,39 +75,38 @@ def create_glassbrains(value_file, value_name, value_roi_name, roi_names, at_pat
     cluster_brain, region_to_id_f  = assign_roi_ids(roi_data, roi_names)
         
     roi_values = fill_glassbrain(n_roi,cluster_brain,value_name)
-        
-    output_file = f"{out_path}/glassbrain_{name}.png"
 
-    min_val = roi_values.min()
-    max_val = roi_values.max()
+    if roi_values.max() > roi_values.min():
+            
+        output_file = f"{out_path}/glassbrain_{name}.png"
 
-     # Create image
-    img = create_img_for_glassbrain_plot(roi_values, at_path, n_roi)
+        # Create image
+        img = create_img_for_glassbrain_plot(roi_values, at_path, n_roi)
 
-    # Define output filename
+        # Define output filename
 
-    # roi_values should be integer-ish cluster IDs
-    n_labels = int(len(np.unique(roi_values[np.isfinite(roi_values)])))
+        # roi_values should be integer-ish cluster IDs
+        n_labels = int(len(np.unique(roi_values[np.isfinite(roi_values)])))
 
-    cmap = colors.ListedColormap(
-        np.vstack([
-            plt.cm.tab20(np.linspace(0, 1, 20)),
-            plt.cm.tab20b(np.linspace(0, 1, 20)),
-        ])[:n_labels]
-    )
+        cmap = colors.ListedColormap(
+           np.vstack([
+               plt.cm.tab20(np.linspace(0, 1, 20)),
+               plt.cm.tab20b(np.linspace(0, 1, 20)),
+           ])[:n_labels]
+        )
 
-    plot_glass_brain(
-        img,
-        cmap=cmap,
-        vmin=roi_values.min(),
-        vmax=roi_values.max(),
-        colorbar=True,
-        title=title_str,
-        plot_abs=False
-    )  
+        plot_glass_brain(
+           img,
+          cmap=cmap,
+          vmin=roi_values.min(),
+          vmax=roi_values.max(),
+         colorbar=True,
+         title=title_str,
+          plot_abs=False
+        )  
 
-    plt.savefig(output_file, bbox_inches='tight',dpi=300)
-    plt.close()
+        plt.savefig(output_file, bbox_inches='tight',dpi=300)
+        plt.close()
     
-    print(f"Saved brain map: {output_file}")
+        print(f"Saved brain map: {output_file}")
 
