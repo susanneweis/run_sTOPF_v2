@@ -9,10 +9,19 @@ from matplotlib import cm
 from matplotlib import colors
 
 # Assign unique numerical IDs to each region name and adds them as a new column
-def assign_roi_ids(df):
-    unique_regions = df['roi_name'].drop_duplicates().tolist()
-    region_to_id = {region: i+1 for i, region in enumerate(unique_regions)}  
+def assign_roi_ids(df, roi_names):
+    """
+    df: DataFrame containing a column 'roi_name'
+    roi_names: list of ROI names in canonical order
+               (index 0 -> ROI_ID 1)
+    """
+    # build lookup: roi_name -> ROI_ID (1-based)
+    region_to_id = {region: i + 1 for i, region in enumerate(roi_names)}
+
+    # map ROI_IDs
+    df = df.copy()
     df['ROI_ID'] = df['roi_name'].map(region_to_id)
+
     return df, region_to_id
 
 def create_img_for_glassbrain_plot(stat_to_plot, atlas_path, n_roi):
@@ -112,8 +121,9 @@ def main(base_path,proj,nn_mi,movies_properties):
         cluster_assign = pd.read_csv(cluster_assign_file)
         
         n_roi = cluster_assign["roi_name"].nunique()
-        
-        cluster_brain, region_to_id_f = assign_roi_ids(cluster_assign)
+
+        roi_names = pd.read_csv(f"{data_path}/ROI_names.csv")['roi_name'].tolist()
+        cluster_brain, region_to_id_f  = assign_roi_ids(cluster_assign, roi_names)
         
         roi_values = fill_glassbrain(n_roi,cluster_brain,"cluster")
 
@@ -134,7 +144,8 @@ def main(base_path,proj,nn_mi,movies_properties):
         
         n_roi = cluster_assign["roi_name"].nunique()
         
-        cluster_brain, region_to_id_f = assign_roi_ids(cluster_assign)
+        roi_names = pd.read_csv(f"{data_path}/ROI_names.csv")['roi_name'].tolist()
+        cluster_brain, region_to_id_f = assign_roi_ids(cluster_assign,roi_names)
         
         roi_values = fill_glassbrain(n_roi,cluster_brain,"cluster")
 

@@ -137,7 +137,7 @@ def main(base_path, proj, movies_properties):
             # write out list of column_names
             roi_cols = movie_data.columns[2:] 
             roi_df = pd.DataFrame({"roi_name": roi_cols})
-            roi_df.to_csv(f"{data_path}/ROI_names", index=False)
+            roi_df.to_csv(f"{data_path}/ROI_names.csv", index=False)
             
             # Define column names and brain regions
             brain_regions = movie_data.columns[2:]  # Extract all brain region columns (assuming the first two columns are not brain regions) 

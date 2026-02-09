@@ -100,7 +100,7 @@ for path in [base_path]:
 # print(f"\nPath and Files found: \n - {movie_path}\n - {phenotype_path} \n - {complete_participants_path}\n {exclude_path}\n")    
 print(f"\n Path and Files found: \n - {base_path}\n")    
 
-_1a_sTOPF_PCA_per_sex.main(base_path, project_ext, mov_prop)
+#_1a_sTOPF_PCA_per_sex.main(base_path, project_ext, mov_prop)
 #_1b_sTOPF_loo_PCA.main(base_path, project_ext, mov_prop)
 #_2a_sTOPF_result_full_group_PCA.main(base_path, project_ext, nn_mi, mov_prop)
 #_2b_sTOPF_individual_expressions.main(base_path, project_ext, nn_mi, mov_prop)
@@ -115,7 +115,7 @@ _1a_sTOPF_PCA_per_sex.main(base_path, project_ext, mov_prop)
 #   _7b_ind_classification_CV_clustered.main(base_path, project_ext, nn_mi, mov_prop, cluster_num)
 #_7c_ind_classification_CV_clustered_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 #_7d_ind_classification_CV_clustered_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
-#for cluster_num in [10, 20, 30, 40]: 
-#   _8b_sTOPF_visualize_cluster_glass_brains.main(base_path,project_ext,nn_mi,mov_prop,cluster_num)
+for cluster_num in [10, 20, 30, 40]: 
+   _8b_sTOPF_visualize_cluster_glass_brains.main(base_path,project_ext,nn_mi,mov_prop,cluster_num)
 #_8c_sTOPF_visualize_cluster_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
 #_8d_sTOPF_visualize_cluster_UMAP_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
