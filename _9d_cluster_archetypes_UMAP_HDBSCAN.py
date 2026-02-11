@@ -1,156 +1,55 @@
 import pandas as pd
+import numpy as np
+
 import os
-from pathlib import Path
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score
-from sklearn.inspection import permutation_importance
-from sklearn.model_selection import RepeatedKFold
-from sklearn.model_selection import RepeatedStratifiedKFold
-from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import HDBSCAN
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
 import umap
-from sklearn.decomposition import PCA
 
-import numpy as np
-import pandas as pd
-
-# Julearn 
-from julearn import run_cross_validation
-from julearn.pipeline import PipelineCreator
-from julearn import scoring
-from julearn.model_selection import StratifiedBootstrap
-from julearn.stats.corrected_ttest import corrected_ttest
-
-# from julearn.viz import plot_scores
-
-import numpy as np
-import pandas as pd
-
-
-def save_clustering(roi_name, roi_lab, roi_corr, metric, out_path, movie):
-    roi_df = pd.DataFrame({
-        "roi_name": roi_name,
-        "cluster": roi_lab
+def save_archetypes(sub, arch_lab, sex, metric, out_path, movie):
+    arch_df = pd.DataFrame({
+        "subject": sub,
+        "cluster": arch_lab,
+        "sex": sex
     })
 
-    cluster_out_path = f"{out_path}/archetypes/{movie}"
-    if not os.path.exists(cluster_out_path):
-        os.makedirs(cluster_out_path, exist_ok=True) # Create the output directory if it doesn't exist
-
+    #arch_out_path = f"{out_path}/{movie}"
+    #os.makedirs(arch_out_path, exist_ok=True) # Create the output directory if it doesn't exist
 
     # optional but useful
-    roi_df["is_noise"] = roi_df["cluster"] == -1
+    arch_df["is_noise"] = arch_df["cluster"] == -1
     
-    roi_df.to_csv(f"{cluster_out_path}/roi_cluster_labels_UMAP_HDBSCAN_clusters_{metric}.csv", index=False)
+    arch_df.to_csv(f"{out_path}/Archetypes_{movie}_UMAP_HDBSCAN_{metric}.csv", index=False)
 
-    roi_corr_df = pd.DataFrame(
-        roi_corr,
-        index=roi_name,
-        columns=roi_name
-    )
     
-    roi_corr_df.to_csv(f"{cluster_out_path}/roi_cluster_correlation_UMAP_HDBSCAN_clusters_{metric}.csv", index=False)
+    # cluster_summary = (
+    #     arch_df
+    #     .groupby("cluster")
+    #     .size()
+    #     .reset_index(name="n subjects")
+    # )
 
     cluster_summary = (
-        roi_df
-        .groupby("cluster")
+        arch_df
+        .groupby(["cluster", "sex"])
         .size()
-        .reset_index(name="n_rois")
+        .unstack(fill_value=0)
+        .assign(n_subjects=lambda df: df.sum(axis=1))
+        .reset_index()
     )
 
-    cluster_summary.to_csv(f"{cluster_out_path}/cluster_summary_UMAP_HDBSCAN_clusters_{metric}.csv", index=False)
-
-    order = np.argsort(roi_lab)
-    roi_corr_sorted = roi_corr[order][:, order]
-    roi_names_sorted = np.array(roi_name)[order]
-
-    roi_corr_sorted_df = pd.DataFrame(
-        roi_corr_sorted,
-        index=roi_names_sorted,
-        columns=roi_names_sorted
-    )
-
-    roi_corr_sorted_df.to_csv(f"{cluster_out_path}/roi_cluster_correlation_sorted_UMAP_HDBSCAN_clusters_{metric}.csv",  index=False)
-
-# def plot_clusters(D, out_file, roi_labels):
-#     # 1) 2D embedding for visualization
-#     um2 = umap.UMAP(
-#         metric="precomputed",
-#         n_neighbors=50,
-#         min_dist=0.0,
-#         n_components=2,
-#         random_state=0
-#     )
-#     Z2 = um2.fit_transform(D)
-
-#     # 2) Colors from HDBSCAN clustering (done in 10D)
-#     labels = roi_labels
-#     is_noise = labels == -1
-#     clusters = np.unique(labels[~is_noise])
-#     n_clusters = len(clusters)
-
-  
-#     cmap = colormaps["tab20"]
-
-#     color_map = {
-#         c: cmap(i / max(n_clusters - 1, 1))
-#         for i, c in enumerate(clusters)
-#     }
-
-#     colors = np.array([
-#         color_map.get(l, (0.6, 0.6, 0.6, 0.7))  # grey for noise
-#         for l in labels
-# ]   )
-
-#     # 3) Plot
-#     plt.figure(figsize=(6, 5))
-#     plt.scatter(Z2[:, 0], Z2[:, 1], c=colors, s=25, linewidths=0)
-
-#     plt.title("UMAP (2D) colored by HDBSCAN clusters (10D)")
-#     plt.xlabel("UMAP-1")
-#     plt.ylabel("UMAP-2")
-
-#     # Optional legend
-#     if n_clusters <= 20:
-#         for c in clusters:
-#             plt.scatter([], [], c=[color_map[c]], label=f"cluster {c}", s=40)
-#         if np.any(is_noise):
-#             plt.scatter([], [], c=[(0.6, 0.6, 0.6, 0.7)], label="noise (-1)", s=40)
-#         plt.legend(frameon=False, bbox_to_anchor=(1.02, 1), loc="upper left")
-
-#     plt.tight_layout()
-
-#     # 4) Save (IMPORTANT: before plt.show())
-#     plt.savefig(out_file, dpi=300, bbox_inches="tight")
-#     #plt.show()
-
-#     print(f"Saved figure to: {out_file}")
-
+    cluster_summary.to_csv(f"{out_path}/Archetype_{movie}_summary_UMAP_HDBSCAN_{metric}.csv", index=False)
 
 def plot_clusters(arch_labels, Z2, sex_list, res_path, movie, metric):
 
     out_file = f"{res_path}/{movie}_sex_sim_diff_archetype_clusters_UMAP_HDBSCAN_{metric}.png"
-
-    # roi_corr = np.corrcoef(X)
-    # D = 1 - roi_corr 
 
     # # --- checks ---
     labels = np.asarray(arch_labels)
     sex = np.asarray(sex_list)
     if labels.shape[0] != sex.shape[0]:
         raise ValueError(f"roi_labels (len={labels.shape[0]}) and sex_list (len={sex.shape[0]}) must match.")
-
-    # # 1) 2D embedding for visualization
-    # um2 = umap.UMAP(
-    #     metric="precomputed",
-    #     n_neighbors=50,
-    #     min_dist=0.0,
-    #     n_components=2,
-    #     random_state=0
-    # )
-    # Z2 = um2.fit_transform(D)
 
     # 2) Colors for clusters
     is_noise = labels == -1
@@ -276,8 +175,7 @@ def main(base_path, proj, nn_mi,movies_properties):
 
         plot_clusters(arch_labels, Z, sex, results_out_path, curr_mov, f"nn{nn_mi}")
 
-        #needs to be adjusted to save people not regions
-        #save_archetypes(roi_cols, roi_labels, roi_corr, f"nn{nn_mi}", results_out_path, curr_mov)
+        save_archetypes(subs, arch_labels, sex, f"nn{nn_mi}", results_out_path, curr_mov)
 
         metric = "fem_vs_mal_corr"
         curr_data = curr_movie_data[["subject", "sex", "region", metric]].copy()
@@ -295,9 +193,7 @@ def main(base_path, proj, nn_mi,movies_properties):
 
         plot_clusters(arch_labels, Z, sex, results_out_path, curr_mov, "corr")
 
-        #needs to be adjusted to save people not regions
-        #save_archetypes(roi_cols, roi_labels, roi_corr, f"nn{nn_mi}", results_out_path, curr_mov)
-
+        save_archetypes(subs, arch_labels, sex, "corr", results_out_path, curr_mov)
 
 # Execute script
 if __name__ == "__main__":
