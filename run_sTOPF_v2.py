@@ -1,10 +1,7 @@
-#adjusted version
 import pandas as pd
 import numpy as np
 import os
 import sys
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 import socket
 
 import _1a_sTOPF_PCA_per_sex
@@ -23,6 +20,7 @@ import _8b_sTOPF_visualize_cluster_glass_brains
 import _8c_sTOPF_visualize_cluster_HDBSCAN_glass_brains
 import _8d_sTOPF_visualize_cluster_UMAP_HDBSCAN_glass_brains
 import _9d_cluster_archetypes_UMAP_HDBSCAN
+import _10d_archetype_brains_UMAP_HDBSCAN
 
 # Setup for paths
 hostname = socket.gethostname()
@@ -120,4 +118,5 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 #   _8b_sTOPF_visualize_cluster_glass_brains.main(base_path,project_ext,nn_mi,mov_prop,cluster_num)
 #_8c_sTOPF_visualize_cluster_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
 #_8d_sTOPF_visualize_cluster_UMAP_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
-_9d_cluster_archetypes_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
+#_9d_cluster_archetypes_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
+_10d_archetype_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
