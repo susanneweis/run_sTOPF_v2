@@ -9,7 +9,7 @@ from matplotlib import cm
 from matplotlib import colors
 
 # Assign unique numerical IDs to each region name and adds them as a new column
-def assign_roi_ids(df, roi_names):
+def assign_roi_ids(df, roi_names, val_rois):
     """
     df: DataFrame containing a column 'roi_name'
     roi_names: list of ROI names in canonical order
@@ -20,7 +20,7 @@ def assign_roi_ids(df, roi_names):
 
     # map ROI_IDs
     df = df.copy()
-    df['ROI_ID'] = df['roi_name'].map(region_to_id)
+    df['ROI_ID'] = df[val_rois].map(region_to_id)
 
     return df, region_to_id
 
@@ -72,7 +72,7 @@ def create_glassbrains(value_file, value_name, value_roi_name, roi_names, at_pat
         
     n_roi = roi_data[value_roi_name].nunique()
         
-    cluster_brain, region_to_id_f  = assign_roi_ids(roi_data, roi_names)
+    cluster_brain, region_to_id_f  = assign_roi_ids(roi_data, roi_names, value_roi_name)
         
     roi_values = fill_glassbrain(n_roi,cluster_brain,value_name)
 
@@ -96,13 +96,13 @@ def create_glassbrains(value_file, value_name, value_roi_name, roi_names, at_pat
         )
 
         plot_glass_brain(
-           img,
-          cmap=cmap,
-          vmin=roi_values.min(),
-          vmax=roi_values.max(),
-         colorbar=True,
-         title=title_str,
-          plot_abs=False
+            img,
+            cmap=cmap,
+            vmin=roi_values.min(),
+            vmax=roi_values.max(),
+            colorbar=True,
+            title=title_str,
+            plot_abs=False
         )  
 
         plt.savefig(output_file, bbox_inches='tight',dpi=300)

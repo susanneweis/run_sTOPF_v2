@@ -117,6 +117,6 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 #for cluster_num in [10, 20, 30, 40]: 
 #   _8b_sTOPF_visualize_cluster_glass_brains.main(base_path,project_ext,nn_mi,mov_prop,cluster_num)
 #_8c_sTOPF_visualize_cluster_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
-#_8d_sTOPF_visualize_cluster_UMAP_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
+_8d_sTOPF_visualize_cluster_UMAP_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
 #_9d_cluster_archetypes_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
-_10d_archetype_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
+#_10d_archetype_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
