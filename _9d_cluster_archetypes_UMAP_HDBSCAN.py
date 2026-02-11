@@ -159,41 +159,29 @@ def main(base_path, proj, nn_mi,movies_properties):
         subs = curr_movie_data["subject"].tolist()
         sex = curr_movie_data["sex"].tolist()
 
-        metric = "fem_vs_mal_mi"
-        curr_data = curr_movie_data[["subject", "sex", "region", metric]].copy()
-        cluster_data = curr_data.pivot(index=["subject", "sex"], columns="region", values=metric).reset_index()
-        cluster_data.columns.name = None
-        subs = cluster_data["subject"].tolist()
-        sex = cluster_data["sex"].tolist()
+        for metric in ["corr", f"nn{nn_mi}"]:
 
-        roi_cols = [c for c in cluster_data.columns if c not in meta_cols]
+            if metric == "corr":
+                column = "fem_vs_mal_corr"
+            else:
+                column = "fem_vs_mal_mi"
 
-        sim_data = cluster_data[roi_cols]
-        X_sim = sim_data.to_numpy()
+            curr_data = curr_movie_data[["subject", "sex", "region", column]].copy()
+            cluster_data = curr_data.pivot(index=["subject", "sex"], columns="region", values=column).reset_index()
+            cluster_data.columns.name = None
+            subs = cluster_data["subject"].tolist()
+            sex = cluster_data["sex"].tolist()
 
-        arch_labels, Z = comp_umap (X_sim, 50, 0.0, 2, 10, 2)
+            roi_cols = [c for c in cluster_data.columns if c not in meta_cols]
 
-        plot_clusters(arch_labels, Z, sex, results_out_path, curr_mov, f"nn{nn_mi}")
+            sim_data = cluster_data[roi_cols]
+            X_sim = sim_data.to_numpy()
 
-        save_archetypes(subs, arch_labels, sex, f"nn{nn_mi}", results_out_path, curr_mov)
+            arch_labels, Z = comp_umap (X_sim, 50, 0.0, 2, 10, 2)
 
-        metric = "fem_vs_mal_corr"
-        curr_data = curr_movie_data[["subject", "sex", "region", metric]].copy()
-        cluster_data = curr_data.pivot(index=["subject", "sex"], columns="region", values=metric).reset_index()
-        cluster_data.columns.name = None
-        subs = cluster_data["subject"].tolist()
-        sex = cluster_data["sex"].tolist()
+            plot_clusters(arch_labels, Z, sex, results_out_path, curr_mov, metric)
 
-        roi_cols = [c for c in cluster_data.columns if c not in meta_cols]
-
-        sim_data = cluster_data[roi_cols]
-        X_sim = sim_data.to_numpy()
-
-        arch_labels, Z = comp_umap(X_sim, 50, 0.0, 2, 10, 2)
-
-        plot_clusters(arch_labels, Z, sex, results_out_path, curr_mov, "corr")
-
-        save_archetypes(subs, arch_labels, sex, "corr", results_out_path, curr_mov)
+            save_archetypes(subs, arch_labels, sex, metric, results_out_path, curr_mov)
 
 # Execute script
 if __name__ == "__main__":
