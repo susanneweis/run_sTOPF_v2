@@ -66,7 +66,7 @@ def fill_glassbrain(n_r,res_df,column):
             roi_values[region_index] = row[column]
     return roi_values
 
-def create_glassbrains(value_file, value_name, value_roi_name, roi_names, at_path, title_str,out_path, name):
+def create_glassbrains(value_file, value_name, value_roi_name, roi_names, at_path, title_str,out_path, name, cmap_mode):
 
     roi_data = pd.read_csv(value_file)
         
@@ -83,17 +83,25 @@ def create_glassbrains(value_file, value_name, value_roi_name, roi_names, at_pat
         # Create image
         img = create_img_for_glassbrain_plot(roi_values, at_path, n_roi)
 
-        # Define output filename
+        if cmap_mode == "discrete":
 
-        # roi_values should be integer-ish cluster IDs
-        n_labels = int(len(np.unique(roi_values[np.isfinite(roi_values)])))
+            # roi_values should be integer-ish cluster IDs
+            n_labels = int(len(np.unique(roi_values[np.isfinite(roi_values)])))
 
-        cmap = colors.ListedColormap(
-           np.vstack([
-               plt.cm.tab20(np.linspace(0, 1, 20)),
-               plt.cm.tab20b(np.linspace(0, 1, 20)),
-           ])[:n_labels]
-        )
+            cmap = colors.ListedColormap(
+                np.vstack([
+                    plt.cm.tab20(np.linspace(0, 1, 20)),
+                    plt.cm.tab20b(np.linspace(0, 1, 20)),
+                ])[:n_labels]
+            )
+
+        elif cmap_mode == "continuous":
+
+            # Good continuous choice for symmetric data
+            cmap = plt.cm.coolwarm
+
+        else:
+            raise ValueError("cmap_mode must be 'discrete' or 'continuous'")
 
         plot_glass_brain(
             img,

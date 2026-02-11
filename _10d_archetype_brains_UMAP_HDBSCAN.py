@@ -61,7 +61,7 @@ def main(base_path, proj, nn_mi,movies_properties):
                 title = f"Brain Archetype UMAP HDBSCAN Cluster {c} {curr_mov} {metric}"
                 name_str = f"Brain_Archetype_UMAP_HDBSCAN_Cluster_{c}_{curr_mov}_{metric}"
                 
-                create_glassbrains(out_sep, roi_fill_name, roi_value_name, roi_names, atlas_path, title, arch_path, name_str)
+                create_glassbrains(out_sep, roi_fill_name, roi_value_name, roi_names, atlas_path, title, arch_path, name_str,"continuous")
 
 
 # Execute script

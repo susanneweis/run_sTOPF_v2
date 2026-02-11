@@ -32,12 +32,12 @@ def main(base_path,proj,nn_mi,movies_properties,k_clust):
         cluster_assign_file = f"{results_path}/{mv_str}/roi_cluster_labels_{k_clust}_clusters_corr.csv"
         title = f"Sex Score Clusters Agglomerative {k_clust} Clusters {mv_str} corr"
         name_str = f"{mv_str}_{k_clust}_clusters_corr"
-        create_glassbrains(cluster_assign_file, roi_fill_name, roi_value_name, roi_names, atlas_path, title, out_path, name_str)
+        create_glassbrains(cluster_assign_file, roi_fill_name, roi_value_name, roi_names, atlas_path, title, out_path, name_str,"discrete")
 
         cluster_assign_file = f"{results_path}/{mv_str}/roi_cluster_labels_{k_clust}_clusters_nn{nn_mi}.csv"
         title = f"Sex Score Clusters Agglomerative {k_clust} Clusters {mv_str} nn{nn_mi}"
         name_str = f"{mv_str}_{k_clust}_clusters_nn{nn_mi}"
-        create_glassbrains(cluster_assign_file, roi_fill_name, roi_value_name,roi_names, atlas_path, title, out_path, name_str)
+        create_glassbrains(cluster_assign_file, roi_fill_name, roi_value_name,roi_names, atlas_path, title, out_path, name_str,"discrete")
         
 # Execute script
 if __name__ == "__main__":
