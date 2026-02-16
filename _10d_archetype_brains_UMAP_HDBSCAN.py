@@ -90,7 +90,7 @@ def main(base_path, proj, nn_mi,movies_properties):
                 roi_fill_name = "mean"
                 roi_value_name = "region"
                 title = f"Brain Archetype UMAP HDBSCAN Cluster {c} {curr_mov} {metric}"
-                name_str = f"Brain_Archetype_UMAP_HDBSCAN_Cluster_{c}_{curr_mov}_{metric}"
+                name_str = f"Brain_Archetype_{curr_mov}_Cluster_{c}_{metric}_UMAP_HDBSCAN"
                 
                 create_glassbrains(out_sep, roi_fill_name, roi_value_name, roi_names, atlas_path, title, arch_movie_glass_path, name_str,"continuous")
                 
@@ -99,7 +99,7 @@ def main(base_path, proj, nn_mi,movies_properties):
                 roi_fill_name = "Quantile"
                 roi_value_name = "region"
                 title = f"Brain Archetype Quantiles UMAP HDBSCAN Cluster {c} {curr_mov} {metric}"
-                name_str = f"Brain_Archetype_UMAP_HDBSCAN_Cluster_{c}_{curr_mov}_{metric}_quantiles"
+                name_str = f"Brain_Archetype_{curr_mov}_Cluster_{c}_{metric}_UMAP_HDBSCAN_quantiles"
 
                 create_glassbrains(out_sep, roi_fill_name, roi_value_name, roi_names, atlas_path, title, arch_movie_glass_quant_path, name_str,"discrete")
 
