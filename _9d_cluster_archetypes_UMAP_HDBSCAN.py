@@ -177,7 +177,9 @@ def main(base_path, proj, nn_mi,movies_properties):
             sim_data = cluster_data[roi_cols]
             X_sim = sim_data.to_numpy()
 
-            arch_labels, Z = comp_umap (X_sim, 50, 0.0, 2, 10, 2)
+            #arch_labels, Z = comp_umap (X_sim, 50, 0.0, 2, 10, 2)
+            #arch_labels, Z = comp_umap (X_sim, 80, 0.1, 2, 10, 2)
+            arch_labels, Z = comp_umap (X_sim, 80, 0.1, 10, 10, 2)
 
             plot_clusters(arch_labels, Z, sex, results_out_path, curr_mov, metric)
 

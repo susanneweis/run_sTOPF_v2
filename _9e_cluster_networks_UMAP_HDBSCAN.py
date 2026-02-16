@@ -7,50 +7,36 @@ import matplotlib.pyplot as plt
 from matplotlib import colormaps
 import umap
 
-def save_archetypes(sub, arch_lab, sex, metric, out_path, movie):
-    arch_df = pd.DataFrame({
-        "subject": sub,
-        "cluster": arch_lab,
-        "sex": sex
+def save_archetypes(rois, netw_lab, metric, out_path, movie):
+    netw_df = pd.DataFrame({
+        "region": rois,
+        "cluster": netw_lab,
     })
 
     #arch_out_path = f"{out_path}/{movie}"
     #os.makedirs(arch_out_path, exist_ok=True) # Create the output directory if it doesn't exist
 
     # optional but useful
-    arch_df["is_noise"] = arch_df["cluster"] == -1
+    netw_df["is_noise"] = netw_df["cluster"] == -1
     
-    arch_df.to_csv(f"{out_path}/Archetypes_{movie}_UMAP_HDBSCAN_{metric}.csv", index=False)
-
-    
-    # cluster_summary = (
-    #     arch_df
-    #     .groupby("cluster")
-    #     .size()
-    #     .reset_index(name="n subjects")
-    # )
+    netw_df.to_csv(f"{out_path}/Networks_{movie}_UMAP_HDBSCAN_{metric}.csv", index=False)
 
     cluster_summary = (
-        arch_df
-        .groupby(["cluster", "sex"])
+        netw_df
+        .groupby("cluster")
         .size()
-        .unstack(fill_value=0)
-        .assign(n_subjects=lambda df: df.sum(axis=1))
-        .reset_index()
+        .reset_index(name="n_regions")
     )
 
-    cluster_summary.to_csv(f"{out_path}/Archetype_{movie}_summary_UMAP_HDBSCAN_{metric}.csv", index=False)
+    cluster_summary.to_csv(f"{out_path}/Networks_{movie}_summary_UMAP_HDBSCAN_{metric}.csv", index=False)
 
-def plot_clusters(arch_labels, Z2, sex_list, res_path, movie, metric):
+def plot_clusters(netw_labels, Z2, res_path, movie, metric):
 
-    out_file = f"{res_path}/{movie}_sex_sim_diff_archetype_clusters_UMAP_HDBSCAN_{metric}.png"
+    out_file = f"{res_path}/{movie}_sex_sim_diff_network_clusters_UMAP_HDBSCAN_{metric}.png"
 
     # # --- checks ---
-    labels = np.asarray(arch_labels)
-    sex = np.asarray(sex_list)
-    if labels.shape[0] != sex.shape[0]:
-        raise ValueError(f"roi_labels (len={labels.shape[0]}) and sex_list (len={sex.shape[0]}) must match.")
-
+    labels = np.asarray(netw_labels)
+    
     # 2) Colors for clusters
     is_noise = labels == -1
     clusters = np.unique(labels[~is_noise])
@@ -66,30 +52,28 @@ def plot_clusters(arch_labels, Z2, sex_list, res_path, movie, metric):
 
     # 3) Marker map for sex (customize as you like)
     # works for values like "F"/"M", "female"/"male", 0/1, etc.
-    uniq_sex = np.unique(sex)
-    marker_cycle = ["o", "^", "s", "D", "P", "X"]  # in case you have >2 groups
-    marker_map = {sx: marker_cycle[i % len(marker_cycle)] for i, sx in enumerate(uniq_sex)}
+    #uniq_sex = np.unique(sex)
+    #marker_cycle = ["o", "^", "s", "D", "P", "X"]  # in case you have >2 groups
+    #marker_map = {sx: marker_cycle[i % len(marker_cycle)] for i, sx in enumerate(uniq_sex)}
 
     # 4) Plot: same colors, separate scatter per sex for different markers
     plt.figure(figsize=(6, 5))
-    for sx in uniq_sex:
-        mask = sex == sx
-        plt.scatter(
-            Z2[mask, 0], Z2[mask, 1],
-            c=colors[mask],
-            s=25,
-            marker=marker_map[sx],
-            linewidths=0,
-            label=f"sex {sx}"
-        )
+    plt.scatter(
+        Z2[:, 0],
+        Z2[:, 1],
+        c=colors,
+        s=25,
+        marker="o",      # single marker for all
+        linewidths=0
+    )
 
-    plt.title(f"Archetypes {metric} movie {movie}: color=cluster, marker=sex")
+    plt.title(f"Networks {metric} movie {movie}: color=cluster")
     plt.xlabel("UMAP-1")
     plt.ylabel("UMAP-2")
 
     # Legend: sex (markers)
-    leg1 = plt.legend(frameon=False, title="Sex", loc="upper left", bbox_to_anchor=(1.02, 1))
-    plt.gca().add_artist(leg1)
+    #leg1 = plt.legend(frameon=False, title="Sex", loc="upper left", bbox_to_anchor=(1.02, 1))
+    #plt.gca().add_artist(leg1)
 
     # Optional legend: clusters (colors)
     if n_clusters <= 20:
@@ -138,7 +122,7 @@ def comp_umap (X_sim, umap_n_neigh, umap_min_dist, umap_n_comp, hbdscan_min_clus
     return arch_labels, Z
 
 
-def main(base_path, proj, nn_mi,movies_properties):
+def main(base_path, proj, nn_mi, movies_properties):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
 
     results_out_path = f"{results_path}/network_clusters_UMAP_HDBSCAN"
@@ -147,8 +131,6 @@ def main(base_path, proj, nn_mi,movies_properties):
     ind_ex_path = f"{results_path}/individual_expression_all_nn{nn_mi}.csv"
     ind_ex_data = pd.read_csv(ind_ex_path)
 
-    sex_mapping = {1: 'male', 2: 'female'}
-
     movies = list(movies_properties.keys())
  
     for curr_mov in movies:
@@ -156,8 +138,6 @@ def main(base_path, proj, nn_mi,movies_properties):
         curr_movie_data = ind_ex_data[ind_ex_data["movie"] == curr_mov]
         
         meta_cols = ["subject", "sex"]
-        subs = curr_movie_data["subject"].tolist()
-        sex = curr_movie_data["sex"].tolist()
 
         for metric in ["corr", f"nn{nn_mi}"]:
 
@@ -169,19 +149,18 @@ def main(base_path, proj, nn_mi,movies_properties):
             curr_data = curr_movie_data[["subject", "sex", "region", column]].copy()
             cluster_data = curr_data.pivot(index=["subject", "sex"], columns="region", values=column).reset_index()
             cluster_data.columns.name = None
-            subs = cluster_data["subject"].tolist()
-            sex = cluster_data["sex"].tolist()
 
             roi_cols = [c for c in cluster_data.columns if c not in meta_cols]
 
             sim_data = cluster_data[roi_cols]
             X_sim = sim_data.to_numpy().T
 
-            netw_labels, Z = comp_umap (X_sim, 50, 0.0, 2, 10, 2)
+            netw_labels, Z = comp_umap (X_sim, 80, 0.1, 10, 10, 2)
+            #netw_labels, Z = comp_umap (X_sim, 50, 0.0, 2, 10, 2)
 
-            plot_clusters(netw_labels, Z, sex, results_out_path, curr_mov, metric)
+            plot_clusters(netw_labels, Z, results_out_path, curr_mov, metric)
 
-            save_archetypes(subs, netw_labels, sex, metric, results_out_path, curr_mov)
+            save_archetypes(roi_cols, netw_labels, metric, results_out_path, curr_mov)
 
 # Execute script
 if __name__ == "__main__":
