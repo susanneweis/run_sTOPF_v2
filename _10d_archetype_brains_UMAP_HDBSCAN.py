@@ -65,13 +65,15 @@ def main(base_path, proj, nn_mi,movies_properties):
                 q75 = df_c["mean"].quantile(0.75)
                 q10 = df_c["mean"].quantile(0.10)
                 q90 = df_c["mean"].quantile(0.90)
+                q5 = df_c["mean"].quantile(0.05)
+                q95 = df_c["mean"].quantile(0.95)
 
 
                 # Add quantile flag column
                 df_c["Quantile"] = np.select(
                     [
-                        df_c["mean"] <= q10,
-                        df_c["mean"] >= q90
+                        df_c["mean"] <= q5,
+                        df_c["mean"] >= q95
                     ],
                     [-1, 1],
                     default=0
