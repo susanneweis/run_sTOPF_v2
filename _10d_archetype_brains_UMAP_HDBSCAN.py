@@ -10,9 +10,9 @@ def main(base_path, proj, nn_mi,movies_properties):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
 
     arch_path = f"{results_path}/archetype_clusters_UMAP_HDBSCAN"
-    arch_movie_path = f"{results_path}/archetype_clusters_UMAP_HDBSCAN/perMovie"
-    arch_movie_glass_path = f"{results_path}/archetype_clusters_UMAP_HDBSCAN/perMovie/glassbrains"
-    arch_movie_glass_quant_path = f"{results_path}/archetype_clusters_UMAP_HDBSCAN/perMovie/glassbrains/quantiles"
+    arch_movie_path = f"{arch_path}/perMovie"
+    arch_movie_glass_path = f"{arch_movie_path}/glassbrains"
+    arch_movie_glass_quant_path = f"{ arch_movie_glass_path}/quantiles"
 
 
     os.makedirs(arch_movie_path, exist_ok=True) # Create the output directory if it doesn't exist

@@ -22,6 +22,7 @@ import _8d_sTOPF_visualize_cluster_UMAP_HDBSCAN_glass_brains
 import _9d_cluster_archetypes_UMAP_HDBSCAN
 import _9e_cluster_networks_UMAP_HDBSCAN
 import _10d_archetype_brains_UMAP_HDBSCAN
+import _10e_network_brains_UMAP_HDBSCAN
 
 # Setup for paths
 hostname = socket.gethostname()
@@ -120,5 +121,6 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 #_8c_sTOPF_visualize_cluster_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
 #_8d_sTOPF_visualize_cluster_UMAP_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
 #_9d_cluster_archetypes_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
-_9e_cluster_networks_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
+#_9e_cluster_networks_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 #_10d_archetype_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
+_10e_network_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
