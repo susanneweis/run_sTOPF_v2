@@ -44,30 +44,9 @@ def main(base_path,proj,movies_properties):
     complete_participants_path = f"{data_path}/complete_participants.csv"
     excluded_participants_path = f"{data_path}/excluded_participants.csv"
 
-    # not relevant yet, as currently not considering hormones
-    # exclude_path = f"{base_path}/results_pipeline/excluded_subjects.csv"
-
     sex_mapping = {1: 'male', 2: 'female'}
-    #subs_sex = pd.read_csv(f"{data_path}/Participant_sex_info.csv", sep = ";")
     subs_sex = pd.read_csv(f"{data_path}/Participant_sex_info.csv")
-    
     subs_sex['gender'] = subs_sex['gender'].replace(sex_mapping)
-
-        # Define movie timepoint parameters
-    #movies_properties = {
-    #    "dd": {"min_timepoint": 6, "max_timepoint": 463},
-    #    "s": {"min_timepoint": 6, "max_timepoint": 445},
-    #    "dps": {"min_timepoint": 6, "max_timepoint": 479},
-    #    "fg": {"min_timepoint": 6, "max_timepoint": 591},
-    #    "dmw": {"min_timepoint": 6, "max_timepoint": 522},
-    #    "lib": {"min_timepoint": 6, "max_timepoint": 454},
-    #    "tgtbtu": {"min_timepoint": 6, "max_timepoint": 512},
-    #    "ss": {"min_timepoint": 6, "max_timepoint": 642},
-    #    "rest_run-1": {"min_timepoint": 6, "max_timepoint": 499},
-    #    "rest_run-2": {"min_timepoint": 6, "max_timepoint": 499}
-    #}
-
-    #movies = ["dd", "s", "dps", "fg", "dmw", "lib", "tgtbtu", "ss", "rest_run-1", "rest_run-2"]
 
     movies = list(movies_properties.keys())
 
@@ -96,9 +75,6 @@ def main(base_path,proj,movies_properties):
         for curr_mov in movies:
 
             # Define the output directory
-            # if hostname == "cpu44":
-            #   output_dir =r_rootdir # Remote root directory
-            #else:
             output_dir = f"{results_path}/results_PCA/{curr_mov}/{subj}" # Local results directory
             
             if not os.path.exists(output_dir):            
@@ -140,8 +116,6 @@ def main(base_path,proj,movies_properties):
                 #subj_movie_data = movie_data.loc[movie_data["subject"] == subj].copy()
                 movie_data = movie_data[movie_data["subject"].isin(others)]
                 movie_data["movie"] = curr_mov  # Add movie identifier to the data
-
-                # VEREINFACHEN ? 
 
                 all_data.append(movie_data)     # Append to the list of all movie data
 
