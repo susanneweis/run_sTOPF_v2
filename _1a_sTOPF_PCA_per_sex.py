@@ -43,10 +43,6 @@ def perform_pca(matrix):
 
 def main(base_path, proj, movies_properties): 
 
-   # Local setup for testing 
-    # for Juseless Version see Kristina's code: PCA_foreachsex_allROI_latestversion.py
-
-    # base_path =  "/Users/sweis/Data/Arbeit/Juseless/data/project/brainvar_sexdiff_movies" 
     data_path = f"{base_path}/data_run_sTOPF_{proj}"
 
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}"
