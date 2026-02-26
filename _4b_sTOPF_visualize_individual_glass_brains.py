@@ -90,6 +90,8 @@ def main(base_path,proj,nn_mi,movies_properties):
     subs_sex = pd.read_csv(f"{data_path}/Participant_sex_info.csv")
     subs_sex['gender'] = subs_sex['gender'].replace(sex_mapping)
 
+    movies = movies + ["concat"]
+
     for mv_str in movies:
         
         outpath = f"{results_out_path}/glass_brains_nn{nn_mi}/individual_expressions/{mv_str}"
