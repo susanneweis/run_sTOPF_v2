@@ -87,6 +87,8 @@ def main(base_path,proj,nn_mi,movies_properties):
     # movies = ["dd", "s", "dps", "fg", "dmw", "lib", "tgtbtu", "ss", "rest_run-1", "rest_run-2"]
     movies = list(movies_properties.keys())
 
+    movies = movies + ["concat"]
+
     for mv_str in movies:
 
         tc_corr = f"{results_out_path}/compare_time_courses_nn{nn_mi}/results_compare_time_courses_{mv_str}.csv"

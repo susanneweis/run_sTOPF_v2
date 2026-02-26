@@ -107,6 +107,7 @@ def main(base_path,proj,nn_mi,movies_properties):
     for subj in valid_subjects:
 
         loo_results_subj = []
+        sub_movie_data_concat = pd.DataFrame()
 
         for curr_mov in movies:
             dataset = f"BOLD_Schaefer_436_2025_mean_aggregation_task-{curr_mov}_MOVIES.tsv"
@@ -130,6 +131,7 @@ def main(base_path,proj,nn_mi,movies_properties):
             print(f"movie properties {curr_mov}", movie_data["timepoint"].min(), movie_data["timepoint"].max(),"\n") 
             
             subj_movie_data = movie_data.loc[movie_data["subject"] == subj].copy()
+            sub_movie_data_concat = pd.concat([sub_movie_data_concat, subj_movie_data], axis=0, ignore_index=True)
 
             # Define the output directory
             # if hostname == "cpu44":
@@ -148,11 +150,27 @@ def main(base_path,proj,nn_mi,movies_properties):
 
                 loo_results_all.append({"subject": subj, "sex": sub_sex, "movie": curr_mov, "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
                 loo_results_subj.append({"subject": subj, "sex": sub_sex, "movie": curr_mov, "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
-            
+
+
+        # concatenated movie
+        pca_path = f"{results_path}/results_PCA/concatenated_PCA/{subj}"
+        pca_scores_female = pd.read_csv(f"{pca_path}/PC1_scores_female_allROI.csv")
+        pca_scores_male=  pd.read_csv(f"{pca_path}/PC1_scores_male_allROI.csv")
+
+        for region in brain_regions:        
+
+            rf, rm, diff, fem_similarity, mi_f, mi_m,diff_mi = comp_exp(pca_scores_female,pca_scores_male,region,nn_mi, sub_movie_data_concat)
+               
+            sub_sex = subs_sex.loc[subs_sex["subject_ID"] == subj, "gender"].iloc[0]
+
+            loo_results_all.append({"subject": subj, "sex": sub_sex, "movie": "ConCat", "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
+            loo_results_subj.append({"subject": subj, "sex": sub_sex, "movie": "ConCat", "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
+
         out_df = pd.DataFrame(loo_results_subj, columns=["subject","sex","movie","region","correlation_female","correlation_male","fem_vs_mal_corr","fem_vs_mal_regr","fem_mi","mal_mi","fem_vs_mal_mi"])
         out_csv = f"{ind_path}/individual_expression_{subj}.csv"
         out_df.to_csv(out_csv, index=False)
         print(f"Saved: {out_csv}")
+
 
     out_df = pd.DataFrame(loo_results_all, columns=["subject","sex","movie","region","correlation_female","correlation_male","fem_vs_mal_corr","fem_vs_mal_regr","fem_mi","mal_mi","fem_vs_mal_mi"])
     out_csv = f"{results_out_path}/individual_expression_all_nn{nn_mi}.csv"
