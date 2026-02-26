@@ -7,7 +7,7 @@ from scipy.stats import pearsonr
 from sklearn.feature_selection import mutual_info_regression
 
 
-def compare_timecourses(inpa, outfi):
+def compare_timecourses(inpa, outfi, nn):
     # CSVs
     csv_f = "PC1_scores_female_allROI.csv"
     csv_m = "PC1_scores_male_allROI.csv" 
@@ -57,8 +57,8 @@ def compare_timecourses(inpa, outfi):
         df_yf = (df_yf - df_yf.mean()) / df_yf.std(ddof=1)
         df_ym = (df_ym - df_ym.mean()) / df_ym.std(ddof=1)
 
-        mi_1 = mutual_info_regression(X=df_yf, y=df_ym, n_neighbors=nn_mi, random_state=42)
-        mi_2 = mutual_info_regression(X=df_ym, y=df_yf, n_neighbors=nn_mi, random_state=42)
+        mi_1 = mutual_info_regression(X=df_yf, y=df_ym, n_neighbors=nn, random_state=42)
+        mi_2 = mutual_info_regression(X=df_ym, y=df_yf, n_neighbors=nn, random_state=42)
 
         mi = (mi_1+ mi_2)/2
 
@@ -107,13 +107,13 @@ def main(base_path,proj,nn_mi,movies_properties):
         os.makedirs(outpath, exist_ok=True)
         out_csv = f"/{outpath}/results_compare_time_courses_{curr_mov}.csv"
 
-        compare_timecourses(in_path, out_csv)
+        compare_timecourses(in_path, out_csv, nn_mi)
 
     in_path = f"{results_path}/results_PCA_all/concatenated_PCA" 
     
     outpath = f"{results_out_path}/compare_time_courses_nn{nn_mi}"
     out_csv = f"/{outpath}/results_compare_time_courses_concatenated.csv"
-    compare_timecourses(in_path, out_csv)
+    compare_timecourses(in_path, out_csv, nn_mi)
     
 # Execute script
 if __name__ == "__main__":
