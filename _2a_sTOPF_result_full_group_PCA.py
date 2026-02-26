@@ -112,7 +112,7 @@ def main(base_path,proj,nn_mi,movies_properties):
     in_path = f"{results_path}/results_PCA_all/concatenated_PCA" 
     
     outpath = f"{results_out_path}/compare_time_courses_nn{nn_mi}"
-    out_csv = f"/{outpath}/results_compare_time_courses_concatenated.csv"
+    out_csv = f"/{outpath}/results_compare_time_courses_concat.csv"
     compare_timecourses(in_path, out_csv, nn_mi)
     
 # Execute script
