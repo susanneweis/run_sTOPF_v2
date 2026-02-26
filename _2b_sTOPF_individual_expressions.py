@@ -5,6 +5,52 @@ from scipy.stats import pearsonr
 import statsmodels.api as sm
 from sklearn.feature_selection import mutual_info_regression
 
+def  comp_exp(pca_s_fem,pca_s_mal,reg,nn, sub_movie):
+
+    pca_fem = pca_s_fem.loc[pca_s_fem["Region"] == reg, "PC_score_1"]
+    pca_mal = pca_s_mal.loc[pca_s_mal["Region"] == reg, "PC_score_1"]
+
+    rf, p = pearsonr(sub_movie[reg], pca_fem)
+    rm, p = pearsonr(sub_movie[reg], pca_mal)
+
+    diff = np.arctanh(rf) - np.arctanh(rm)
+    diff = np.tanh(diff)
+
+    # standardize
+    y = (sub_movie[reg] - np.mean(sub_movie[reg])) / np.std(sub_movie[reg])
+    xf = (pca_fem - np.mean(pca_fem)) / np.std(pca_fem)
+    xm = (pca_mal - np.mean(pca_mal)) / np.std(pca_mal)
+
+    # design matrix
+    X = np.column_stack([xf, xm])
+    X = sm.add_constant(X)
+    model = sm.OLS(y, X).fit()
+
+    beta_f, beta_m = model.params[1], model.params[2]
+    fem_similarity = (beta_f - beta_m) / (abs(beta_f) + abs(beta_m))
+
+    # mutual information
+    df_y = pd.DataFrame(y)
+    df_xf = pd.DataFrame(xf)
+    df_xm = pd.DataFrame(xm)
+
+    df_y = (df_y - df_y.mean()) / df_y.std(ddof=1)
+    df_xf = (df_xf - df_xf.mean()) / df_xf.std(ddof=1)
+    df_xm = (df_xm - df_xm.mean()) / df_xm.std(ddof=1)
+
+    X = np.column_stack([df_xm, df_xf])  # shape (T, 2)
+    y = df_y                       # shape (T,)
+
+    mi = mutual_info_regression(X, y, n_neighbors=nn, random_state = 42)
+    mi_m = mi[0]
+    mi_f = mi[1]
+
+    diff_mi = mi_f - mi_m
+
+    return  rf, rm, diff, fem_similarity, mi_f, mi_m,diff_mi
+
+
+
 def main(base_path,proj,nn_mi,movies_properties): 
     # Local setup for testing 
     # for Juseless Version see Kristina's code: PCA_foreachsex_allROI_latestversion.py
@@ -32,20 +78,6 @@ def main(base_path,proj,nn_mi,movies_properties):
 
     subs_sex['gender'] = subs_sex['gender'].replace(sex_mapping)
     phenotypes.columns = ['subject_ID', 'gender']
-
-    # Define movie timepoint parameters
-    #movies_properties = {
-    #    "dd": {"min_timepoint": 6, "max_timepoint": 463},
-    #    "s": {"min_timepoint": 6, "max_timepoint": 445},
-    #    "dps": {"min_timepoint": 6, "max_timepoint": 479},
-    #    "fg": {"min_timepoint": 6, "max_timepoint": 591},
-    #    "dmw": {"min_timepoint": 6, "max_timepoint": 522},
-    #    "lib": {"min_timepoint": 6, "max_timepoint": 454},
-    #    "tgtbtu": {"min_timepoint": 6, "max_timepoint": 512},
-    #    "ss": {"min_timepoint": 6, "max_timepoint": 642},
-    #    "rest_run-1": {"min_timepoint": 6, "max_timepoint": 499},
-    #    "rest_run-2": {"min_timepoint": 6, "max_timepoint": 499}
-    #}
 
     #movies = ["dd", "s", "dps", "fg", "dmw", "lib", "tgtbtu", "ss", "rest_run-1", "rest_run-2"]
 
@@ -109,47 +141,9 @@ def main(base_path,proj,nn_mi,movies_properties):
             pca_scores_male=  pd.read_csv(f"{pca_path}/PC1_scores_male_allROI.csv")
 
             for region in brain_regions:        
-                
-                pca_fem = pca_scores_female.loc[pca_scores_female["Region"] == region, "PC_score_1"]
-                pca_mal = pca_scores_male.loc[pca_scores_male["Region"] == region, "PC_score_1"]
 
-                rf, p = pearsonr(subj_movie_data[region], pca_fem)
-                rm, p = pearsonr(subj_movie_data[region], pca_mal)
-
-                diff = np.arctanh(rf) - np.arctanh(rm)
-                diff = np.tanh(diff)
-
-                # standardize
-                y = (subj_movie_data[region] - np.mean(subj_movie_data[region])) / np.std(subj_movie_data[region])
-                xf = (pca_fem - np.mean(pca_fem)) / np.std(pca_fem)
-                xm = (pca_mal - np.mean(pca_mal)) / np.std(pca_mal)
-
-                # design matrix
-                X = np.column_stack([xf, xm])
-                X = sm.add_constant(X)
-                model = sm.OLS(y, X).fit()
-
-                beta_f, beta_m = model.params[1], model.params[2]
-                fem_similarity = (beta_f - beta_m) / (abs(beta_f) + abs(beta_m))
-
-                # mutual information
-                df_y = pd.DataFrame(y)
-                df_xf = pd.DataFrame(xf)
-                df_xm = pd.DataFrame(xm)
-
-                df_y = (df_y - df_y.mean()) / df_y.std(ddof=1)
-                df_xf = (df_xf - df_xf.mean()) / df_xf.std(ddof=1)
-                df_xm = (df_xm - df_xm.mean()) / df_xm.std(ddof=1)
-
-                X = np.column_stack([df_xm, df_xf])  # shape (T, 2)
-                y = df_y                       # shape (T,)
-
-                mi = mutual_info_regression(X, y, n_neighbors=nn_mi, random_state = 42)
-                mi_m = mi[0]
-                mi_f = mi[1]
-
-                diff_mi = mi_f - mi_m
-                
+                rf, rm, diff, fem_similarity, mi_f, mi_m,diff_mi = comp_exp(pca_scores_female,pca_scores_male,region,nn_mi, subj_movie_data)
+               
                 sub_sex = subs_sex.loc[subs_sex["subject_ID"] == subj, "gender"].iloc[0]
 
                 loo_results_all.append({"subject": subj, "sex": sub_sex, "movie": curr_mov, "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
