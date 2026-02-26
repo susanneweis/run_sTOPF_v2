@@ -163,8 +163,8 @@ def main(base_path,proj,nn_mi,movies_properties):
                
             sub_sex = subs_sex.loc[subs_sex["subject_ID"] == subj, "gender"].iloc[0]
 
-            loo_results_all.append({"subject": subj, "sex": sub_sex, "movie": "ConCat", "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
-            loo_results_subj.append({"subject": subj, "sex": sub_sex, "movie": "ConCat", "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
+            loo_results_all.append({"subject": subj, "sex": sub_sex, "movie": "concat", "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
+            loo_results_subj.append({"subject": subj, "sex": sub_sex, "movie": "concat", "region": region, "correlation_female": rf, "correlation_male": rm, "fem_vs_mal_corr": diff, "fem_vs_mal_regr": fem_similarity, "fem_mi": mi_f, "mal_mi": mi_m,"fem_vs_mal_mi": diff_mi})
 
         out_df = pd.DataFrame(loo_results_subj, columns=["subject","sex","movie","region","correlation_female","correlation_male","fem_vs_mal_corr","fem_vs_mal_regr","fem_mi","mal_mi","fem_vs_mal_mi"])
         out_csv = f"{ind_path}/individual_expression_{subj}.csv"
