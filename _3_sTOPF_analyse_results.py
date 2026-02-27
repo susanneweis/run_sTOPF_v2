@@ -9,23 +9,8 @@ def main(base_path,proj,nn_mi,movies_properties):
     ind_expr_path = f"{results_out_path}/individual_expression_all_nn{nn_mi}.csv"
     ind_expr = pd.read_csv(ind_expr_path)
 
-     # Define movie timepoint parameters
-    #movies_properties = {
-    #    "dd": {"min_timepoint": 6, "max_timepoint": 463},
-    #    "s": {"min_timepoint": 6, "max_timepoint": 445},
-    #    "dps": {"min_timepoint": 6, "max_timepoint": 479},
-    #    "fg": {"min_timepoint": 6, "max_timepoint": 591},
-    #    "dmw": {"min_timepoint": 6, "max_timepoint": 522},
-    #    "lib": {"min_timepoint": 6, "max_timepoint": 454},
-    #    "tgtbtu": {"min_timepoint": 6, "max_timepoint": 512},
-    #    "ss": {"min_timepoint": 6, "max_timepoint": 642},
-    #    "rest_run-1": {"min_timepoint": 6, "max_timepoint": 499},
-    #    "rest_run-2": {"min_timepoint": 6, "max_timepoint": 499}
-    #}
-
-    #movies = ["dd", "s", "dps", "fg", "dmw", "lib", "tgtbtu", "ss", "rest_run-1", "rest_run-2"]
-
     movies = list(movies_properties.keys())
+    movies = movies + ["concat"]
 
     regions = ind_expr["region"].astype(str).drop_duplicates().tolist()
     
