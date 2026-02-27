@@ -4,7 +4,6 @@ def main(base_path,proj,nn_mi,movies_properties):
 
     results_out_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
 
-
     # Change this later 
     ind_expr_path = f"{results_out_path}/individual_expression_all_nn{nn_mi}.csv"
     ind_expr = pd.read_csv(ind_expr_path)
@@ -16,44 +15,44 @@ def main(base_path,proj,nn_mi,movies_properties):
     
     # res_summary = []
 
-    ind_expr["class_corr"] = (
+    ind_expr["class_corr_correct"] = (
         ((ind_expr["sex"] == "female") & (ind_expr["fem_vs_mal_corr"] >= 0)) |
         ((ind_expr["sex"] == "male") & (ind_expr["fem_vs_mal_corr"] < 0))
     )
 
-    ind_expr["class_corr_sim"] = (
+    ind_expr["class_regr_correct"] = (
         ((ind_expr["sex"] == "female") & (ind_expr["fem_vs_mal_regr"] >= 0)) |
         ((ind_expr["sex"] == "male") & (ind_expr["fem_vs_mal_regr"] < 0))
     )
-    ind_expr.to_csv(f"{results_out_path}/correct_classification_fem_vs_mal_corr.csv", index=False)
+    # ind_expr.to_csv(f"{results_out_path}/correct_classification_fem_vs_mal_corr.csv", index=False)
 
-    ind_expr["class_corr_mi"] = (
+    ind_expr["class_mi_correct"] = (
         ((ind_expr["sex"] == "female") & (ind_expr["fem_mi"] >= ind_expr["mal_mi"] )) |
         ((ind_expr["sex"] == "male") & (ind_expr["fem_mi"] < ind_expr["mal_mi"]))
     )
-    ind_expr.to_csv(f"{results_out_path}/correct_classification_mi.csv", index=False)
+    ind_expr.to_csv(f"{results_out_path}/correct_classifications_corr_regr_mi.csv", index=False)
 
     movie_class_summary = []
 
     for curr_mov in movies:
         
-        mv_class = ind_expr.loc[ind_expr["movie"] == curr_mov, ["sex","class_corr","class_corr_sim","class_corr_mi"]].reset_index(drop=True)
+        mv_class = ind_expr.loc[ind_expr["movie"] == curr_mov, ["sex","class_corr_correct","class_regr_correct","class_mi_correct"]].reset_index(drop=True)
 
-        mv_class_fem = mv_class.loc[mv_class["sex"] == "female", ["sex","class_corr","class_corr_sim","class_corr_mi"]].reset_index(drop=True)
-        mv_class_mal = mv_class.loc[mv_class["sex"] == "male", ["sex","class_corr","class_corr_sim","class_corr_mi"]].reset_index(drop=True)
+        mv_class_fem = mv_class.loc[mv_class["sex"] == "female", ["sex","class_corr_correct","class_regr_correct","class_mi_correct"]].reset_index(drop=True)
+        mv_class_mal = mv_class.loc[mv_class["sex"] == "male", ["sex","class_corr_correct","class_regr_correct","class_mi_correct"]].reset_index(drop=True)
         nr_fem = len(mv_class_fem)
         nr_mal = len(mv_class_mal)
 
-        count_true_fem = mv_class_fem["class_corr"].sum()
-        count_true_mal = mv_class_mal["class_corr"].sum()
+        count_true_fem = mv_class_fem["class_corr_correct"].sum()
+        count_true_mal = mv_class_mal["class_corr_correct"].sum()
 
-        count_true_fem_sim = mv_class_fem["class_corr_sim"].sum()
-        count_true_mal_sim = mv_class_mal["class_corr_sim"].sum()
+        count_true_fem_sim = mv_class_fem["class_regr_correct"].sum()
+        count_true_mal_sim = mv_class_mal["class_regr_correct"].sum()
     
-        count_true_fem_mi = mv_class_fem["class_corr_mi"].sum()
-        count_true_mal_mi = mv_class_mal["class_corr_mi"].sum()
+        count_true_fem_mi = mv_class_fem["class_mi_correct"].sum()
+        count_true_mal_mi = mv_class_mal["class_mi_correct"].sum()
 
-        movie_class_summary.append({"movie": curr_mov, "female corr fem_vs_mal_corr": count_true_fem/nr_fem, "male corr fem_vs_mal_corr": count_true_mal/nr_mal, "female corr fem_sim": count_true_fem_sim/nr_fem, "male corr fem_sim": count_true_mal_sim/nr_mal, "female corr mi": count_true_fem_mi/nr_fem, "male corr mi": count_true_mal_mi/nr_mal})
+        movie_class_summary.append({"movie": curr_mov, "female accuracy fem_vs_mal_corr": count_true_fem/nr_fem, "male accuracy fem_vs_mal_corr": count_true_mal/nr_mal, "female accuracy fem_regr": count_true_fem_sim/nr_fem, "male accuracy fem_regr": count_true_mal_sim/nr_mal, "female accuracy fem_vs_mal_mi": count_true_fem_mi/nr_fem, "male accuracy fem_vs_mal_mi": count_true_mal_mi/nr_mal})
 
     movie_class_summary_df = pd.DataFrame(movie_class_summary)
     movie_class_summary_df.to_csv(f"{results_out_path}/correct_classification_per_movie_nn{nn_mi}.csv", index=False)
