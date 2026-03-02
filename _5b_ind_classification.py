@@ -19,12 +19,12 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
 
     #movies = ["dd", "s", "dps", "fg", "dmw", "lib", "tgtbtu", "ss", "rest_run-1", "rest_run-2"]
     movies = list(movies_properties.keys())
-    movies = movies + ["concat"]
+    movies_con = movies + ["concat"]
 
     results = []
     results_corr = []
 
-    for curr_mov in movies:
+    for curr_mov in movies_con:
 
         cmp_tc_path = f"{results_path}/compare_time_courses_nn{nn_mi}/results_compare_time_courses_{curr_mov}.csv" 
         cmp_tc_data = pd.read_csv(cmp_tc_path)
