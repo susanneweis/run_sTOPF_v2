@@ -21,6 +21,7 @@ def main(base_path, proj, nn_mi,movies_properties):
 
 
     movies = list(movies_properties.keys())
+    movies = movies + ["concat"]
  
     for curr_mov in movies:
         

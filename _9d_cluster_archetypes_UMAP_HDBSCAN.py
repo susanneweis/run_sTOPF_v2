@@ -150,6 +150,7 @@ def main(base_path, proj, nn_mi,movies_properties):
     sex_mapping = {1: 'male', 2: 'female'}
 
     movies = list(movies_properties.keys())
+    movies = movies + ["concat"]
  
     for curr_mov in movies:
 

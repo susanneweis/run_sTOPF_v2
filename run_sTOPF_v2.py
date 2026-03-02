@@ -108,8 +108,8 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 #_3_sTOPF_analyse_results.main(base_path, project_ext, nn_mi, mov_prop)
 #_4a_sTOPF_visualize_group_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
 #_4b_sTOPF_visualize_individual_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
-for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]: 
-    _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
+#for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]: 
+#    _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
 #for top_reg in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]: 
 #    _6b_ind_classification_CV.main(base_path, project_ext, nn_mi, mov_prop,top_reg) 
 #for cluster_num in [10, 20, 30, 40]: 
@@ -120,7 +120,7 @@ for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]:
 #   _8b_sTOPF_visualize_cluster_glass_brains.main(base_path,project_ext,nn_mi,mov_prop,cluster_num)
 #_8c_sTOPF_visualize_cluster_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
 #_8d_sTOPF_visualize_cluster_UMAP_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
-#_9d_cluster_archetypes_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
+_9d_cluster_archetypes_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 #_9e_cluster_networks_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
-#_10d_archetype_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
+_10d_archetype_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 #_10e_network_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
