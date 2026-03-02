@@ -19,6 +19,7 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
 
     #movies = ["dd", "s", "dps", "fg", "dmw", "lib", "tgtbtu", "ss", "rest_run-1", "rest_run-2"]
     movies = list(movies_properties.keys())
+    movies = movies + ["concat"]
 
     results = []
     results_corr = []
