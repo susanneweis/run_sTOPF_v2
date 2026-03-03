@@ -132,6 +132,7 @@ def main(base_path, proj, nn_mi, movies_properties):
     ind_ex_data = pd.read_csv(ind_ex_path)
 
     movies = list(movies_properties.keys())
+    movies = movies + ["concat"]
  
     for curr_mov in movies:
 

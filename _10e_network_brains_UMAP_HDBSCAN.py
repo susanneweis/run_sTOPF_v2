@@ -11,13 +11,17 @@ def main(base_path, proj, nn_mi,movies_properties):
     netw_movie_path = f"{netw_path}/perMovie"
     netw_movie_glass_path = f"{netw_movie_path}/glassbrains"
     #netw_movie_glass_quant_path = f"{netw_movie_glass_path}/quantiles"
-
+    netw_clust_movie_path = f"{netw_path}/perMovie/perCluster"
+    netw_clust_movie_glass_path = f"{netw_path}/perMovie/perCluster/glassbrains" 
 
     os.makedirs(netw_movie_path, exist_ok=True) # Create the output directory if it doesn't exist
     os.makedirs(netw_movie_glass_path, exist_ok=True) # Create the output directory if it doesn't exist
     #os.makedirs(netw_movie_glass_quant_path, exist_ok=True) # Create the output directory if it doesn't exist
+    os.makedirs(netw_clust_movie_path, exist_ok=True)
+    os.makedirs(netw_clust_movie_glass_path, exist_ok=True)
 
     movies = list(movies_properties.keys())
+    movies = movies + ["concat"]
  
     for curr_mov in movies:
         
@@ -101,6 +105,32 @@ def main(base_path, proj, nn_mi,movies_properties):
 
             create_glassbrains(out_path, roi_fill_name, roi_value_name, roi_names, atlas_path, title, netw_movie_glass_path, name_str,"discrete")
 
+            # create files and glass brains for each cluster
+
+
+            in_file = out_path
+            all_cluster_data = pd.read_csv(in_file)
+
+            # clusters to export: all except -1 (include 0)
+            clusters = sorted([c for c in all_cluster_data["cluster"].dropna().unique() if c != -1])
+
+            for c in clusters:
+                out = all_cluster_data.copy()
+
+                mask = out["cluster"] == c
+                out.loc[~mask, ["mean", "var"]] = 0  # keep region + cluster, zero out stats elsewhere
+
+                # safe filename (handles float-ish cluster labels like 0.0)
+                c_str = str(int(c)) if float(c).is_integer() else str(c).replace(".", "p")
+                out_file = f"{netw_clust_movie_path}/Networks_{curr_mov}_brain_UMAP_HDBSCAN_{metric}_cluster_{c_str}.csv"
+                out.to_csv(out_file, index=False)
+
+                roi_fill_name = "mean"
+                roi_value_name = "region"
+                title = f"Brain Networks UMAP HDBSCAN {curr_mov} {metric} cluster {c}"
+                name_str = f"Brain_Networks_{curr_mov}_{metric}_cluster_{c}_UMAP_HDBSCAN"
+
+                create_glassbrains(out_file, roi_fill_name, roi_value_name, roi_names, atlas_path, title, netw_clust_movie_glass_path, name_str,"continuous")
 
 
 # Execute script
