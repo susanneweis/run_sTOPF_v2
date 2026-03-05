@@ -57,7 +57,6 @@ def main(base_path,proj,nn_mi,movies_properties):
 
     data_path = f"{base_path}/data_run_sTOPF_{proj}"
 
-    ### change!!!!
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}"
     results_out_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
 

@@ -85,6 +85,74 @@ def main(base_path,res_path,nn_values):
 
     results_corr_df.to_csv(out_file_corr)
 
+    
+    value_column = "classification correct"
+
+    records = []
+
+    for nn in nn_values:
+        for perc in perc_values:
+            fpath = (
+                f"{base_path}/{res_path}/results_nn{nn}/ind_classification_nn{nn}/"
+                f"classification_subjects_movies_nn{nn}_top_{perc}perc.csv"
+            )
+
+            if not os.path.exists(fpath):
+                print(f"⚠️ Missing: {fpath}")
+                continue
+
+            df = pd.read_csv(fpath)
+            df[value_column] = pd.to_numeric(df[value_column], errors="coerce")
+
+            movie_means = (
+                df.groupby("movie", as_index=False)[value_column]
+                .mean()
+                .rename(columns={value_column: f"mean_{value_column}"})
+            )
+            movie_means["nn"] = nn
+            movie_means["perc"] = perc
+
+            records.append(movie_means)
+
+    results_df = pd.concat(records, ignore_index=True)
+    results_df = results_df[["nn", "perc", "movie", f"mean_{value_column}"]].sort_values(["nn", "perc", "movie"])
+
+    out_file = f"{base_path}/{res_path}/mean_{value_column}_by_movie_nn_perc_LONG.csv"
+    results_df.to_csv(out_file, index=False)
+
+    records = []
+
+    for nn in nn_values:
+        for perc in perc_values:
+            fpath = (
+                f"{base_path}/{res_path}/results_nn{nn}/ind_classification_nn{nn}/"
+                f"classification_subjects_movies_corr_top_{perc}perc.csv"
+            )
+
+            if not os.path.exists(fpath):
+                print(f"⚠️ Missing: {fpath}")
+                continue
+
+            df = pd.read_csv(fpath)
+            df[value_column] = pd.to_numeric(df[value_column], errors="coerce")
+
+            movie_means = (
+                df.groupby("movie", as_index=False)[value_column]
+                .mean()
+                .rename(columns={value_column: f"mean_{value_column}"})
+            )
+            movie_means["nn"] = nn
+            movie_means["perc"] = perc
+
+            records.append(movie_means)
+
+    results_df = pd.concat(records, ignore_index=True)
+    results_df = results_df[["nn", "perc", "movie", f"mean_{value_column}"]].sort_values(["nn", "perc", "movie"])
+
+    out_file = f"{base_path}/{res_path}/mean_{value_column}_by_movie_corr_perc_LONG.csv"
+    results_df.to_csv(out_file, index=False)
+
+
 
 # Execute script
 if __name__ == "__main__":

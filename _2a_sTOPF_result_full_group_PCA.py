@@ -41,22 +41,29 @@ def compare_timecourses(inpa, outfi, nn):
         if y_f.size != y_m.size:
             length_warnings.append((r, y_f.size, y_m.size))
 
+        # absolute difference between female and male
         d_abs = np.abs(y_f - y_m)
+
+        # compute ttest (on absolute differences)
         t_stat, p_val = ttest_1samp(d_abs, 0, nan_policy='omit')
         ttest_sig = p_val <= 0.05
             
         # very rough correction
         p_val_corr = p_val * 436
         ttest_sig_corr = p_val_corr <= 0.05
+
+        # pearson correlation 
         r, p_r = pearsonr(y_f, y_m)
         corr_sig = p_r <= 0.05
 
         df_yf = pd.DataFrame(y_f)
         df_ym = pd.DataFrame(y_m)
 
+        # standardize female and male 
         df_yf = (df_yf - df_yf.mean()) / df_yf.std(ddof=1)
         df_ym = (df_ym - df_ym.mean()) / df_ym.std(ddof=1)
 
+        # mutual information in both directions just to be sure
         mi_1 = mutual_info_regression(X=df_yf, y=df_ym, n_neighbors=nn, random_state=42)
         mi_2 = mutual_info_regression(X=df_ym, y=df_yf, n_neighbors=nn, random_state=42)
 
@@ -82,6 +89,7 @@ def compare_timecourses(inpa, outfi, nn):
     out.to_csv(outpa, index=False)
     print(f"Saved: {outpa.resolve()}")
 
+    # length warning
     if length_warnings:
         print("⚠️ Length mismatches (female vs male) — truncated to min length for testing:")
         for r, lf, lm in length_warnings[:10]:

@@ -25,4 +25,4 @@ nn_values = [11]
 _results_1_summarize_classifications.main(base_path,results,nn_values)
 #_results_2_assess_stability.main(base_path,results,nn_values)
 #_results_3_assess_stability_corr.main(base_path,results)
-#_results_4_sex_type_distributions.main(base_path,results)
+_results_4_sex_type_distributions.main(base_path,results)
