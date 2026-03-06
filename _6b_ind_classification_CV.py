@@ -46,7 +46,8 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
     #mutual information very low for rest - therefore for now only real movies
     #for now
 
-    movies_short = movies[:-2]
+    #movies_short = movies[:-2] + ["concat"]
+    movies = movies + ["concat"]
 
     all_feature_importances = []   # will hold tidy rows across all runs
 
@@ -56,7 +57,7 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
     out_csv_mi = f"{results_out_path}/classification_CV_nn{nn_mi}.csv" 
     out_csv_corr = f"{results_out_path}/classification_CV_corr.csv" 
     
-    for curr_mov in movies_short:
+    for curr_mov in movies:
 
         # adjust variable naming and print out results
         
