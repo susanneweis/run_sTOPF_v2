@@ -30,7 +30,7 @@ def main(base_path,proj,nn_mi,movies_properties):
         ((ind_expr["sex"] == "female") & (ind_expr["fem_mi"] >= ind_expr["mal_mi"] )) |
         ((ind_expr["sex"] == "male") & (ind_expr["fem_mi"] < ind_expr["mal_mi"]))
     )
-    ind_expr.to_csv(f"{results_out_path}/correct_classifications_corr_regr_mi.csv", index=False)
+    ind_expr.to_csv(f"{results_out_path}/correct_classifications_corr_regr_mi_nn{nn_mi}.csv", index=False)
 
     movie_class_summary = []
 

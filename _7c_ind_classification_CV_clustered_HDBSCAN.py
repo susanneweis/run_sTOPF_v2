@@ -181,7 +181,7 @@ def plot_clusters(D, out_file, roi_labels):
 def main(base_path, proj, nn_mi,movies_properties):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
 
-    results_out_path = f"{results_path}/ind_classification_CV_clustered_HDBSCAN"
+    results_out_path = f"{results_path}/ind_classification_CV_nn{nn_mi}_clustered_HDBSCAN"
     if not os.path.exists(results_out_path):
         os.makedirs(results_out_path, exist_ok=True) # Create the output directory if it doesn't exist
 

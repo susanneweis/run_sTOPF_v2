@@ -178,7 +178,7 @@ def plot_clusters(D, out_file, roi_labels):
 def main(base_path, proj, nn_mi,movies_properties, K_clust):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
 
-    results_out_path = f"{results_path}/ind_classification_CV_clustered"
+    results_out_path = f"{results_path}/ind_classification_CV_nn{nn_mi}_clustered"
     if not os.path.exists(results_out_path):
         os.makedirs(results_out_path, exist_ok=True) # Create the output directory if it doesn't exist
 
@@ -193,7 +193,8 @@ def main(base_path, proj, nn_mi,movies_properties, K_clust):
     sex_mapping = {1: 'male', 2: 'female'}
 
     #movies = ["dd", "s", "dps", "fg", "dmw", "lib", "tgtbtu", "ss", "rest_run-1", "rest_run-2"]
-    movies = list(movies_properties.keys())
+    movies = list(movies_properties.keys())    
+    movies = movies + ["concat"]
 
     #mutual information very low for rest - therefore for now only real movies
     #for now

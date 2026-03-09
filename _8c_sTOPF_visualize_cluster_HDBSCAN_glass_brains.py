@@ -11,7 +11,7 @@ from _util_glass_brains import create_glassbrains
 
 def main(base_path,proj,nn_mi,movies_properties):
 
-    results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}/ind_classification_CV_clustered_HDBSCAN/clusters/"
+    results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}/ind_classification_CV_nn{nn_mi}_clustered_HDBSCAN/clusters/"
     os.makedirs(results_path, exist_ok=True)
     
     data_path = f"{base_path}/data_run_sTOPF_{proj}"
