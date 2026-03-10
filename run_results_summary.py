@@ -40,7 +40,8 @@ nn_values = [11]
 #     _results_5_CV_classification_results.main(path,file,col)
 
 for nn in nn_values: 
-    path = f"{base_path}/{results}"
-    file = "mean_classification correct_by_movie_corr_perc_LONG"
+    # Achtung wieder ändern
+    path = f"{base_path}/{results}/"
+    file = "mean_classification correct_by_movie_nn_perc_LONG"
     col = "mean_classification correct"
     _results_6_classification_results.main(path,file,col)

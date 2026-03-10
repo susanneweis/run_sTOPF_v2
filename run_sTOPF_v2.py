@@ -116,7 +116,7 @@ for cluster_num in [10, 20, 30, 40]:
     _7b_ind_classification_CV_clustered.main(base_path, project_ext, nn_mi, mov_prop, cluster_num)
 _7c_ind_classification_CV_clustered_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 _7d_ind_classification_CV_clustered_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
-for cluster_num in [10, 20, 30, 40]: 
+for cluster_num in [10, 20, 30, 40, 50]: 
     _8b_sTOPF_visualize_cluster_glass_brains.main(base_path,project_ext,nn_mi,mov_prop,cluster_num)
 _8c_sTOPF_visualize_cluster_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
 _8d_sTOPF_visualize_cluster_UMAP_HDBSCAN_glass_brains.main(base_path,project_ext,nn_mi,mov_prop)
