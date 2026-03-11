@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def main(path,file, col):
+def main(path,file, col,tit):
 
     in_file = f"{path}/{file}.csv"
     out_file = f"{path}/{file}_{col}.png"
@@ -27,7 +27,7 @@ def main(path,file, col):
 
     ax.set_xlabel("movie")
     ax.set_ylabel(col)
-    ax.set_title(f"{col} by movie and top regions")
+    ax.set_title(f"{tit}: {col} by movie and top regions")
 
     plt.xticks(rotation=45, ha="right")
     plt.legend(title="top regions", bbox_to_anchor=(1.02, 1), loc="upper left")
@@ -61,7 +61,7 @@ def main(path,file, col):
 
     ax.set_xlabel("movie")
     ax.set_ylabel(col)
-    ax.set_title(f"{col} by movie and top regions")
+    ax.set_title(f"{tit}: {col} by movie and top regions")
 
     ax.set_xticks(range(len(plot_df.index)))
     ax.set_xticklabels(plot_df.index, rotation=45, ha="right")

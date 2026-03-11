@@ -21,27 +21,44 @@ base_path =  "/Users/sweis/Data/Arbeit/Juseless/data/project/brainvar_sexdiff_mo
 #nn_values = [3,5,10,15,20,25,30,35,40,50,60,70,80,90,100]
 
 results = "results_run_sTOPF_v2_data_v4"
-#nn_values = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-nn_values = [11]
+
+nn_values = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+#nn_values = [11]
+nn_values = [11,12,14]
 
 #_results_1_summarize_classifications.main(base_path,results,nn_values)
-#_results_2_assess_stability.main(base_path,results,nn_values)
+_results_2_assess_stability.main(base_path,results,nn_values)
 #_results_3_assess_stability_corr.main(base_path,results)
 #_results_4_sex_type_distributions.main(base_path,results)
 
 # for nn in nn_values:        
-#     path = f"{base_path}/{results}/results_nn{nn}/ind_classification_CV/"
+#     path = f"{base_path}/{results}/results_nn{nn}/ind_classification_CV_nn{nn}"
 #     file = "classification_CV_corr"
+#     titel = "Correlation"
+    
 #     col = "cv_balanced_accuracy_mean"
-#     _results_5_classification_results.main(path,file,col)
-#     path = f"{base_path}/{results}/results_nn{nn}/ind_classification_CV/"
-#     file = "classification_CV_corr"
+#     _results_5_CV_classification_results.main(path,file,col,titel)
+    
 #     col = "test_balanced_accuracy"
-#     _results_5_CV_classification_results.main(path,file,col)
+#     _results_5_CV_classification_results.main(path,file,col,titel)
+    
+#     file = f"classification_CV_nn{nn}"
+#     titel = f"MutInf nn{nn}"
+    
+#     col = "cv_balanced_accuracy_mean"
+#     _results_5_CV_classification_results.main(path,file,col,titel)
+  
+#     col = "test_balanced_accuracy"
+#     _results_5_CV_classification_results.main(path,file,col,titel)
 
-for nn in nn_values: 
-    # Achtung wieder ändern
-    path = f"{base_path}/{results}/"
-    file = "mean_classification correct_by_movie_nn_perc_LONG"
-    col = "mean_classification correct"
-    _results_6_classification_results.main(path,file,col)
+# for nn in nn_values: 
+#     path = f"{base_path}/{results}/"
+#     file = "mean_classification correct_by_movie_corr_perc_LONG"
+#     col = "mean_classification correct"
+#     titel = "Correlation"
+#     _results_6_classification_results.main(path,file,col,titel,nn)
+
+#     file = "mean_classification correct_by_movie_nn_perc_LONG"
+#     col = "mean_classification correct"
+#     titel = f"MutInf nn{nn}"
+#     _results_6_classification_results.main(path,file,col,titel,nn)
