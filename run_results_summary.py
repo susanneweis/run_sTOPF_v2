@@ -24,7 +24,7 @@ results = "results_run_sTOPF_v2_data_v4"
 
 nn_values = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
 #nn_values = [11]
-nn_values = [11,12,14]
+#nn_values = [11,12,14]
 
 #_results_1_summarize_classifications.main(base_path,results,nn_values)
 _results_2_assess_stability.main(base_path,results,nn_values)

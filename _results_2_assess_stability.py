@@ -1,103 +1,158 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pathlib import Path
+
+
+def stab_curves(nn_values,avg,title,metric,res_path):
+
+    plt.figure(figsize=(7, 5))
+    plt.plot(nn_values, avg, marker="o")
+
+    plt.xticks(nn_values)
+
+    plt.xlabel("NN")
+    plt.ylabel("Average Stability (r)")
+    plt.title(f"Parameter Stability Curve - {metric}")
+
+    plt.tight_layout()
+    plt.savefig(f"{res_path}/stability_curve_{metric}_{title}.png", dpi=300)
+    #plt.savefig(f"{res_path}/stability_curve_{metric}_{title}.pdf")
+    plt.show()
+
+    # -------------------------------------------------------
+    # SAVE STABILITY CURVE
+    # -------------------------------------------------------
+
+    curve_df = pd.DataFrame({
+        "nn": nn_values,
+        "avg_stability_r": avg
+    })
+
+    curve_df.to_csv(
+        f"{res_path}/stability_curve_{metric}_{title}.csv",
+        index=False
+    )
+
+
 
 def main(base_path,res_path,nn_values):
 
-    # Map sex to numbers
-    sex_mapping = {"male": 1, "female": 2}
+    # -------------------------------------------------------
+    # SETTINGS
+    # -------------------------------------------------------
+    results_path = f"{base_path}/{res_path}"
 
-    true_sex_vecs = {}
-    pred_sex_vecs = {}
+    metric = "mi"
+    col = "fem_vs_mal_mi"
 
-    for nn_mi in nn_values:
+    # -------------------------------------------------------
+    # LOAD VECTORS
+    # -------------------------------------------------------
 
-        results_path = f"{base_path}/{res_path}/results_nn{nn_mi}/ind_classification_nn{nn_mi}"
-        results_out_path = f"{base_path}/{res_path}"
-        
-        ind_class_name = f"classification_subjects_movies_nn{nn_mi}_top_100perc.csv"
-        ind_class_file =  f"{results_path}/{ind_class_name}"
+    vectors = {}
 
-        # Read CSV
-        ind_class = pd.read_csv(ind_class_file)
+    for nn in nn_values:
 
-        # Sort by movie, then subject
-        ind_class = ind_class.sort_values(["movie", "subject"])
+        file = f"individual_expression_all_nn{nn}.csv"
+        path = f"{results_path}/results_nn{nn}/{file}"
 
-        # sex as numbers and the predicted sex as numbers:
-        ind_class["sex_num"] = ind_class["sex"].map(sex_mapping)
-        ind_class["class_num"] = ind_class["classification"].map(sex_mapping)
+        df = pd.read_csv(path)
+        df = df[~df["movie"].isin(["REST1", "REST2", "concat"])]
+        df = df.sort_values(["subject", "movie", "region"])
 
-        true_sex_vecs[nn_mi]    = ind_class["sex_num"].to_numpy()
-        pred_sex_vecs[nn_mi]   = ind_class["class_num"].to_numpy()
+        vectors[nn] = df[col].values
 
-    avg_agreement_dict = {}
+    # -------------------------------------------------------
+    # COMPUTE STABILITY MATRIX
+    # -------------------------------------------------------
 
-    for nn in nn_values:  # 1..10
-        v = pred_sex_vecs[nn]
+    mat = np.zeros((len(nn_values), len(nn_values)))
 
-        sim_sum = 0.0
-        n_other = 0
+    for i, nn1 in enumerate(nn_values):
+        for j, nn2 in enumerate(nn_values):
 
-        for nn2 in nn_values:
-            if nn2 == nn:
-                continue
+            v1 = vectors[nn1]
+            v2 = vectors[nn2]
 
-            v2 = pred_sex_vecs[nn2]
+            r = np.corrcoef(v1, v2)[0, 1]
+            mat[i, j] = r
 
-            # similarity = fraction of equal entries
-            sim = np.mean(v == v2)
 
-            sim_sum += sim
-            n_other += 1
+    # -------------------------------------------------------
+    # HEATMAP
+    # -------------------------------------------------------
 
-        avg_agreement_dict[nn] = sim_sum / n_other  # n_other should be 9
+    plt.figure(figsize=(9, 8))
 
-    df_avg = pd.DataFrame(
-        {
-            "nn_mi": list(avg_agreement_dict.keys()),
-            "avg_agreement": list(avg_agreement_dict.values()),
-        }
-    ).sort_values("nn_mi")
+    plt.imshow(mat, cmap="viridis", vmin=0.8, vmax=1)
+    plt.colorbar(label="Continuous Stability (Pearson r)")
+    plt.xticks(range(len(nn_values)), nn_values)
+    plt.yticks(range(len(nn_values)), nn_values)
 
-    out_file = f"{results_out_path}/Stability_nn_mi.csv"
+    # ---- add numbers in each cell ----
+    for i in range(len(nn_values)):
+        for j in range(len(nn_values)):
+            plt.text(
+                j, i,
+                f"{mat[i, j]:.2f}",
+                ha="center",
+                va="center",
+                color="white" if mat[i, j] < 0.9 else "black",
+                fontsize=8
+            )
 
-    df_avg.to_csv(out_file, index=False)
+    plt.title(f"Continuous Stability (Pearson r) - {metric}")
+    plt.xlabel("NN")
+    plt.ylabel("NN")
 
-    avg_neigh_agree_dict = {}
+    plt.tight_layout()
+    plt.savefig(f"{results_path}/stability_heatmap_{metric}.png", dpi=300)
+    #plt.savefig(f"{results_path}/stability_heatmap_{metric}.pdf")
+    plt.show()
 
-    for i in range(1, len(nn_values) - 1):
-        left = nn_values[i - 1]
-        curr  = nn_values[i]
-        right = nn_values[i + 1]
+    # -------------------------------------------------------
+    # SAVE HEATMAP MATRIX
+    # -------------------------------------------------------
 
-        sim = (np.mean(pred_sex_vecs[curr] == pred_sex_vecs[left]) + np.mean(pred_sex_vecs[curr] == pred_sex_vecs[right]))/2
-        avg_neigh_agree_dict[curr] = sim
+    heatmap_df = pd.DataFrame(mat, index=nn_values, columns=nn_values)
+    heatmap_df.to_csv(f"{results_path}/stability_heatmap_{metric}.csv")
 
-    df_neigh_avg = pd.DataFrame(
-        {
-            "nn": list(avg_neigh_agree_dict.keys()),
-            "avg_agreement": list(avg_neigh_agree_dict.values()),
-        }
-    ).sort_values("nn")
+    # -------------------------------------------------------
+    # STABILITY CURVE
+    # -------------------------------------------------------
 
-    out_file = f"{results_out_path}/Stability_neighbour_nn_mi.csv"
+    avg = []
+    for i in range(len(nn_values)):
+        others = np.delete(mat[i], i)
+        avg.append(np.mean(others))
 
-    df_neigh_avg.to_csv(out_file, index=False)
+    title = "all_nn"    
+    stab_curves(nn_values,avg,title,metric,results_path)
 
-# pairwise agreement
-#agree_3_5 = (labels_3 == labels_5).mean()
-#agree_3_7 = (labels_3 == labels_7).mean()
-#agree_5_7 = (labels_5 == labels_7).mean()
+    avg = []
+    for i in range(len(nn_values)):
+        neigh = []
+        if i - 1 >= 0:
+            neigh.append(mat[i, i - 1])
+        if i + 1 < len(nn_values):
+            neigh.append(mat[i, i + 1])
+        avg.append(np.mean(neigh))
 
-# “average agreement with others”
-#stab_3 = (agree_3_5 + agree_3_7) / 2
-#stab_5 = (agree_3_5 + agree_5_7) / 2
-#stab_7 = (agree_3_7 + agree_5_7) / 2
+    title = "1_neigh"    
+    stab_curves(nn_values,avg,title,metric,results_path)
 
-# The nn with the highest stab_nn is the one whose male/female decision changes least when 
-# you switch to another nn, i.e. the most stable.
-# If all stab_nn are very similar and high (e.g. > 0.95), just pick the smallest nn (3) or stick 
-# with the default for simplicity and report that results are robust across 
+    avg = []
+    for i in range(len(nn_values)):
+        neigh = []
+        for j in [i - 2, i - 1, i + 1, i + 2]:
+            if 0 <= j < len(nn_values):
+                neigh.append(mat[i, j])
+        avg.append(np.mean(neigh))
+
+    title = "2_neigh"    
+    stab_curves(nn_values,avg,title,metric,results_path)
 
 
 # Execute script
