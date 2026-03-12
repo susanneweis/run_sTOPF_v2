@@ -23,6 +23,7 @@ import _9d_cluster_archetypes_UMAP_HDBSCAN
 import _9e_cluster_networks_UMAP_HDBSCAN
 import _10d_archetype_brains_UMAP_HDBSCAN
 import _10e_network_brains_UMAP_HDBSCAN
+import _11_sti_gradients
 
 # Setup for paths
 hostname = socket.gethostname()
@@ -70,7 +71,7 @@ else:
     # exclude_path = f"{base_path}/outlier_results/excluded_subjects.csv"
     # Parameter for Mutual Information Estimation
     
-    nn_mi = 11
+    nn_mi = 14
 
 # Define movie timepoint parameters
 #mov_prop = {
@@ -114,10 +115,10 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 #     _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
 
 # highest stability 
-nn_values = [11,12,14]
-for nn_mi in nn_values:
-    for top_reg in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]: 
-        _6b_ind_classification_CV.main(base_path, project_ext, nn_mi, mov_prop,top_reg) 
+#nn_values = [11,12,14]
+#for nn_mi in nn_values:
+#    for top_reg in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]: 
+#        _6b_ind_classification_CV.main(base_path, project_ext, nn_mi, mov_prop,top_reg) 
 # for cluster_num in [10, 20, 30, 40]: 
 #     _7b_ind_classification_CV_clustered.main(base_path, project_ext, nn_mi, mov_prop, cluster_num)
 # _7c_ind_classification_CV_clustered_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
@@ -130,3 +131,4 @@ for nn_mi in nn_values:
 # _9e_cluster_networks_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 # _10d_archetype_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 # _10e_network_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
+_11_sti_gradients.main(base_path, project_ext, nn_mi, mov_prop)
