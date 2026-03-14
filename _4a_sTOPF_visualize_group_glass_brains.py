@@ -5,6 +5,7 @@ import os
 import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
 from nilearn.plotting import plot_glass_brain
+from nilearn.plotting import plot_stat_map
 from matplotlib import cm
 
 # Assign unique numerical IDs to each region name and adds them as a new column
@@ -63,11 +64,36 @@ def create_glassbrains(vals, at_path, nrois, title_str,o_file, min, max):
 
     # Define output filename
 
-    cmap = cm.RdBu_r  # Diverging colormap with blue (negative) and red (positive)
+    #cmap = cm.RdBu_r  # Diverging colormap with blue (negative) and red (positive)
+    cmap = cm.plasma
+
+    # or inferno inferno_r
                 
     # Plot and save glass brain
-    plot_glass_brain(img, threshold=0, vmax=max, vmin=min,display_mode='lyrz', colorbar=True, cmap = cmap, title=title_str, plot_abs=False)
-    plt.savefig(o_file, bbox_inches='tight',dpi=300)
+    plot_glass_brain(
+        img, vmax=max, 
+        vmin=min,
+        symmetric_cbar=False, 
+        display_mode='lyrz', 
+        colorbar=True, 
+        cmap = cmap, 
+        title=title_str, 
+        plot_abs=False
+    )
+
+    plt.savefig(f"{o_file}.png", bbox_inches='tight',dpi=300)
+    plt.close()
+
+    plot_stat_map(
+        img,
+        vmax=max,
+        cmap=cmap,
+        display_mode="mosaic",
+        colorbar=True,
+        title=title_str
+    )
+    
+    plt.savefig(f"{o_file}_slices.png", bbox_inches='tight',dpi=300)
     plt.close()
     
     print(f"Saved brain map: {o_file}")
@@ -107,17 +133,17 @@ def main(base_path,proj,nn_mi,movies_properties):
 
         # Define output filename
         title = f"Female vs. Male Time Course Correlations {mv_str}"
-        output_file = os.path.join(outpath, f"{mv_str}_tc_correlations.png")
+        output_file = os.path.join(outpath, f"{mv_str}_tc_correlations")
 
         create_glassbrains(roi_values, atlas_path, n_roi, title,output_file, -1, 1)
-
+      
         # High Correlations
         
         res_tc_corr["corr_high"] = res_tc_corr["corr"].where(res_tc_corr["corr"] > 0.9, 0)
         
         roi_values = fill_glassbrain(n_roi,res_tc_corr,"corr_high")
         title = f"Female vs. Male Time Course Correlations > 0.9 {mv_str}"
-        output_file = os.path.join(outpath, f"{mv_str}_high_corr.png")
+        output_file = os.path.join(outpath, f"{mv_str}_high_corr")
         
         create_glassbrains(roi_values, atlas_path, n_roi, title,output_file, 0, 1)
 
@@ -127,7 +153,7 @@ def main(base_path,proj,nn_mi,movies_properties):
     
         roi_values = fill_glassbrain(n_roi,res_tc_corr,"corr_low")
         title = f"Female vs. Male Time Course Correlations < 0.1 {mv_str}"
-        output_file = os.path.join(outpath, f"{mv_str}_low_corr.png")
+        output_file = os.path.join(outpath, f"{mv_str}_low_corr")
 
         create_glassbrains(roi_values, atlas_path, n_roi, title,output_file, 0, 1)
 
@@ -135,7 +161,7 @@ def main(base_path,proj,nn_mi,movies_properties):
             
         roi_values = fill_glassbrain(n_roi,res_tc_corr,"mutual_inf")
         title = f"Female vs. Male Time Course Mutual Information {mv_str}"
-        output_file = os.path.join(outpath, f"{mv_str}_mi.png")
+        output_file = os.path.join(outpath, f"{mv_str}_mi")
 
         min_val = res_tc_corr["mutual_inf"].min()
         max_val = res_tc_corr["mutual_inf"].max()
@@ -149,7 +175,7 @@ def main(base_path,proj,nn_mi,movies_properties):
     
         roi_values = fill_glassbrain(n_roi,res_tc_corr,"mi_low")
         title = f"Female vs. Male Time Course Low Mutual Information {mv_str}"
-        output_file = os.path.join(outpath, f"{mv_str}_mi_low.png")
+        output_file = os.path.join(outpath, f"{mv_str}_mi_low")
 
         create_glassbrains(roi_values, atlas_path, n_roi, title,output_file, 0, 1)
 
@@ -160,7 +186,7 @@ def main(base_path,proj,nn_mi,movies_properties):
     
         roi_values = fill_glassbrain(n_roi,res_tc_corr,"mi_high")
         title = f"Female vs. Male Time Course High Mutual Information {mv_str}"
-        output_file = os.path.join(outpath, f"{mv_str}_mi_high.png")
+        output_file = os.path.join(outpath, f"{mv_str}_mi_high")
 
         create_glassbrains(roi_values, atlas_path, n_roi, title,output_file, 0, 1)
 

@@ -11,6 +11,7 @@ import _2b_sTOPF_individual_expressions
 import _3_sTOPF_analyse_results
 import _4a_sTOPF_visualize_group_glass_brains
 import _4b_sTOPF_visualize_individual_glass_brains
+import _4c_compute_shared_and_movie_specific
 import _5b_ind_classification
 import _6b_ind_classification_CV
 import _7b_ind_classification_CV_clustered
@@ -71,7 +72,7 @@ else:
     # exclude_path = f"{base_path}/outlier_results/excluded_subjects.csv"
     # Parameter for Mutual Information Estimation
     
-    nn_mi = 14
+    nn_mi = 15
 
 # Define movie timepoint parameters
 #mov_prop = {
@@ -109,8 +110,9 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 # _2a_sTOPF_result_full_group_PCA.main(base_path, project_ext, nn_mi, mov_prop)
 # _2b_sTOPF_individual_expressions.main(base_path, project_ext, nn_mi, mov_prop)
 # _3_sTOPF_analyse_results.main(base_path, project_ext, nn_mi, mov_prop)
-# _4a_sTOPF_visualize_group_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
+#_4a_sTOPF_visualize_group_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
 # _4b_sTOPF_visualize_individual_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
+_4c_compute_shared_and_movie_specific.main(base_path, project_ext, nn_mi, mov_prop)
 # for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]: 
 #     _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
 
@@ -131,4 +133,4 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 # _9e_cluster_networks_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 # _10d_archetype_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 # _10e_network_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
-_11_sti_gradients.main(base_path, project_ext, nn_mi, mov_prop)
+#_11_sti_gradients.main(base_path, project_ext, nn_mi, mov_prop)
