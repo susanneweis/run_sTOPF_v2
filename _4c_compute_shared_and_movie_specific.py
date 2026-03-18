@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import pandas as pd
+from _util_glass_brains import create_glassbrains
+
 
 
 def main(base_path, proj, nn_mi, mov_prop):
@@ -14,8 +16,15 @@ def main(base_path, proj, nn_mi, mov_prop):
     """
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}/compare_time_courses_nn{nn_mi}"
     results_out_path = f"{results_path}/shared_and_specific"
+    results_glass_brain_path = f"{results_out_path}/glass_brains"
 
     os.makedirs(results_out_path, exist_ok=True)
+    os.makedirs(results_glass_brain_path, exist_ok=True)
+
+    data_path = f"{base_path}/data_run_sTOPF_{proj}"
+    atlas_path = f"{data_path}/Susanne_Schaefer_436.nii"
+    roi_name_file = f"{data_path}/ROI_names.csv"
+    roi_names = pd.read_csv(roi_name_file)["roi_name"].tolist()
 
     eps=1e-8
     top_n=20
@@ -82,13 +91,17 @@ def main(base_path, proj, nn_mi, mov_prop):
             shared_map["abs_mean_all_movies"] / (shared_map["std_all_movies"] + eps)
         )
 
-        shared_map.to_csv(
-            os.path.join(results_out_path, f"shared_map_all_movies_{metric}.csv"),
-            index=False
-        )
+        shared_map_file = f"{results_out_path}/shared_map_all_movies_{metric}.csv"
+        shared_map.to_csv(shared_map_file,index=False)
 
-        
-
+        # glass brain
+        roi_fill_name = "mean_all_movies"
+        roi_value_name = "region"
+        title = f"Shared Map {metric}"
+        name_str = f"shared_map_{metric}"
+                
+        create_glassbrains(shared_map_file, roi_fill_name, roi_value_name, roi_names, atlas_path, title, results_glass_brain_path, name_str,"continuous")
+                
         # ------------------------------------------------------------------
         # 4. Ranked tables across all movies
         # ------------------------------------------------------------------
@@ -160,10 +173,18 @@ def main(base_path, proj, nn_mi, mov_prop):
             out_df["abs_normalized_residual"] = out_df["normalized_residual"].abs()
 
             # Save full per-movie table
-            out_df.to_csv(
-                os.path.join(results_out_path, f"movie_specific_{movie}_{metric}.csv"),
-                index=False
-            )
+            movie_spec_file = f"{results_out_path}/movie_specific_{movie}_{metric}.csv"
+    
+            out_df.to_csv(movie_spec_file,index=False)
+
+            # glass brain
+            roi_fill_name = "residual"
+            roi_value_name = "region"
+            title = f"Residual {movie} {metric}"
+            name_str = f"{movie}_specific_map_{metric}"
+                
+            create_glassbrains(movie_spec_file, roi_fill_name, roi_value_name, roi_names, atlas_path, title, results_glass_brain_path, name_str,"continuous")
+            
 
             # -----------------------------
             # Ranked residual tables

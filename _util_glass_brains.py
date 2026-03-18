@@ -5,6 +5,7 @@ import os
 import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
 from nilearn.plotting import plot_glass_brain
+from nilearn.plotting import plot_stat_map
 from matplotlib import cm
 from matplotlib import colors
 
@@ -79,6 +80,7 @@ def create_glassbrains(value_file, value_name, value_roi_name, roi_names, at_pat
     if roi_values.max() > roi_values.min():
             
         output_file = f"{out_path}/glassbrain_{name}.png"
+        output_file_sl = f"{out_path}/slices_{name}.png"
 
         # Create image
         img = create_img_for_glassbrain_plot(roi_values, at_path, n_roi)
@@ -98,7 +100,7 @@ def create_glassbrains(value_file, value_name, value_roi_name, roi_names, at_pat
         elif cmap_mode == "continuous":
 
             # Good continuous choice for symmetric data
-            cmap = plt.cm.coolwarm
+            cmap = plt.cm.RdBu_r
 
         else:
             raise ValueError("cmap_mode must be 'discrete' or 'continuous'")
@@ -114,6 +116,18 @@ def create_glassbrains(value_file, value_name, value_roi_name, roi_names, at_pat
         )  
 
         plt.savefig(output_file, bbox_inches='tight',dpi=300)
+        plt.close()
+
+        plot_stat_map(
+            img,
+            vmax=roi_values.max(),
+            cmap=cmap,
+            display_mode="mosaic",
+            colorbar=True,
+            title=title_str
+        )
+
+        plt.savefig(output_file_sl, bbox_inches='tight',dpi=300)
         plt.close()
     
         print(f"Saved brain map: {output_file}")
