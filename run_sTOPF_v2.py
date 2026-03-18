@@ -12,6 +12,7 @@ import _3_sTOPF_analyse_results
 import _4a_sTOPF_visualize_group_glass_brains
 import _4b_sTOPF_visualize_individual_glass_brains
 import _4c_compute_shared_and_movie_specific
+import _4d_compute_shared_and_movie_specific_across_part
 import _5b_ind_classification
 import _6b_ind_classification_CV
 import _7b_ind_classification_CV_clustered
@@ -112,7 +113,8 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 # _3_sTOPF_analyse_results.main(base_path, project_ext, nn_mi, mov_prop)
 #_4a_sTOPF_visualize_group_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
 # _4b_sTOPF_visualize_individual_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
-_4c_compute_shared_and_movie_specific.main(base_path, project_ext, nn_mi, mov_prop)
+#_4c_compute_shared_and_movie_specific.main(base_path, project_ext, nn_mi, mov_prop)
+_4d_compute_shared_and_movie_specific_across_part.main(base_path, project_ext, nn_mi, mov_prop)
 # for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]: 
 #     _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
 
