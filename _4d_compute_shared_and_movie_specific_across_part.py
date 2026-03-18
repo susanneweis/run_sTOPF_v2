@@ -67,9 +67,9 @@ def main(base_path, proj, nn_mi, mov_prop):
 
     results = []
 
-    #for region in tqdm(ind_ex_data["region"].unique()):
-    regions = ind_ex_data["region"].unique()
-    for region in regions[:10]: 
+    for region in ind_ex_data["region"].unique():
+    #regions = ind_ex_data["region"].unique()
+    #for region in regions[:10]: 
 
         df_r = ind_ex_data[ind_ex_data["region"] == region]
         df_r = ind_ex_data[
@@ -131,9 +131,9 @@ def main(base_path, proj, nn_mi, mov_prop):
     movie_levels = movies
     coef_rows = []
 
-    #for region in tqdm(ind_ex_data["region"].cat.categories):
-    regions = ind_ex_data["region"].unique()
-    for region in regions[:10]: 
+    for region in ind_ex_data["region"].unique():
+    #regions = ind_ex_data["region"].unique()
+    #for region in regions[:10]: 
         df_r = ind_ex_data[ind_ex_data["region"] == region]
         if df_r["subject"].nunique() < 3 or df_r["movie"].nunique() < 2:
             continue
