@@ -48,9 +48,9 @@ def main(base_path, proj, nn_mi, mov_prop):
     param_rows = []
     coef_rows = []
 
-    #for region in ind_ex_data["region"].cat.categories:
-    regions = ind_ex_data["region"].unique()
-    for region in regions[:5]: 
+    for region in ind_ex_data["region"].cat.categories:
+    #regions = ind_ex_data["region"].unique()
+    #for region in regions[:5]: 
 
         df_r = ind_ex_data[ind_ex_data["region"] == region]
 
