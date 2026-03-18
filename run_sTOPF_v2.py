@@ -13,6 +13,7 @@ import _4a_sTOPF_visualize_group_glass_brains
 import _4b_sTOPF_visualize_individual_glass_brains
 import _4c_compute_shared_and_movie_specific
 import _4d_compute_shared_and_movie_specific_across_part_opt
+import _4e_analyse_movie_shared_and_specific
 import _5b_ind_classification
 import _6b_ind_classification_CV
 import _7b_ind_classification_CV_clustered
@@ -95,6 +96,10 @@ mov_prop_file = f"{data_path}/movie_timepoints.csv"
 mov_prop_df = pd.read_csv(mov_prop_file, index_col="movie")
 mov_prop = mov_prop_df.to_dict(orient="index")
 
+atlas_path = f"{data_path}/Susanne_Schaefer_436.nii"
+roi_name_file = f"{data_path}/ROI_names.csv"
+roi_names = pd.read_csv(roi_name_file)["roi_name"].tolist()
+
 TR = 0.980  # seconds
 
 for path in [base_path]:
@@ -114,10 +119,10 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 #_4a_sTOPF_visualize_group_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
 # _4b_sTOPF_visualize_individual_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
 #_4c_compute_shared_and_movie_specific.main(base_path, project_ext, nn_mi, mov_prop)
-_4d_compute_shared_and_movie_specific_across_part_opt.main(base_path, project_ext, nn_mi, mov_prop)
+#_4d_compute_shared_and_movie_specific_across_part_opt.main(base_path, project_ext, nn_mi, mov_prop)
+_4e_analyse_movie_shared_and_specific.main(base_path, project_ext, nn_mi, mov_prop, atlas_path, roi_names,None)
 # for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]: 
 #     _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
-
 # highest stability 
 #nn_values = [11,12,14]
 #for nn_mi in nn_values:
