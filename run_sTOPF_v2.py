@@ -27,6 +27,7 @@ import _9e_cluster_networks_UMAP_HDBSCAN
 import _10d_archetype_brains_UMAP_HDBSCAN
 import _10e_network_brains_UMAP_HDBSCAN
 import _11_sti_gradients
+import _12a_analyse_movie_shared_and_specific
 
 # Setup for paths
 hostname = socket.gethostname()
@@ -120,7 +121,7 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 # _4b_sTOPF_visualize_individual_glass_brains.main(base_path, project_ext, nn_mi, mov_prop)
 #_4c_compute_shared_and_movie_specific.main(base_path, project_ext, nn_mi, mov_prop)
 #_4d_compute_shared_and_movie_specific_across_part_opt.main(base_path, project_ext, nn_mi, mov_prop)
-_4e_analyse_movie_shared_and_specific.main(base_path, project_ext, nn_mi, mov_prop, atlas_path, roi_names,None)
+#_4e_analyse_movie_shared_and_specific.main(base_path, project_ext, nn_mi, mov_prop, atlas_path, roi_names,5)
 # for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]: 
 #     _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
 # highest stability 
@@ -141,3 +142,5 @@ _4e_analyse_movie_shared_and_specific.main(base_path, project_ext, nn_mi, mov_pr
 # _10d_archetype_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 # _10e_network_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 #_11_sti_gradients.main(base_path, project_ext, nn_mi, mov_prop)
+max_reg = 5
+_12a_analyse_movie_shared_and_specific.main(base_path, project_ext, nn_mi, mov_prop, max_reg)
