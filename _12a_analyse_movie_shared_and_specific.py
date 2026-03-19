@@ -82,6 +82,13 @@ def fit_movie_models(ind_ex_data, movies, max_regions=None):
 
     coef_df = pd.DataFrame(coef_rows)
 
+    if not res_df.empty and not coef_df.empty:
+        coef_df = coef_df.merge(
+            res_df[["region", "p_lr_fdr", "movie_sensitive", "neglog10_p_fdr"]],
+            on="region",
+            how="left"
+        )
+
     return res_df, coef_df
 
 
