@@ -22,6 +22,7 @@ def fit_movie_models(ind_ex_data, movies, max_regions=None):
     """
     results = []
     coef_rows = []
+    movie_means = []
 
     regions = ind_ex_data["region"].unique()
     if max_regions is not None:
@@ -60,6 +61,15 @@ def fit_movie_models(ind_ex_data, movies, max_regions=None):
             "p_lr": p_lr
         })
 
+        params = m_full.params  # all fixed effects
+        intercept = params["Intercept"]
+
+       # movie_means = {}
+
+        # statsmodels uses one movie as reference (alphabetically first) and only has coefficients for the others.
+        ref_movie = movies[0]  # check which one is actually reference in your coding
+
+
         # predicted mean effect for each movie
         for mv in movies:
             tmp = df_r.copy()
@@ -73,6 +83,25 @@ def fit_movie_models(ind_ex_data, movies, max_regions=None):
                 "p_lr": p_lr
             })
 
+        for mv in movies:
+            if mv == ref_movie:
+                # mean = intercept for the reference movie
+                movie_mean = intercept
+            else:
+                coef_name = f"movie[T.{mv}]"
+                if coef_name in params.index:
+                    movie_mean = intercept + params[coef_name]
+                else:
+                    # if coding is different, you may need to inspect params.index
+                    movie_mean = np.nan
+
+            movie_means.append({
+                "region": region,
+                "movie": mv,
+                "mean_effect": movie_mean,
+                "p_lr": p_lr
+            })
+
     res_df = pd.DataFrame(results)
 
     if not res_df.empty:
@@ -81,6 +110,7 @@ def fit_movie_models(ind_ex_data, movies, max_regions=None):
         res_df["neglog10_p_fdr"] = -np.log10(np.clip(res_df["p_lr_fdr"], 1e-300, None))
 
     coef_df = pd.DataFrame(coef_rows)
+    mov_mean_df = pd.DataFrame(movie_means)
 
     if not res_df.empty and not coef_df.empty:
         coef_df = coef_df.merge(
@@ -88,11 +118,17 @@ def fit_movie_models(ind_ex_data, movies, max_regions=None):
             on="region",
             how="left"
         )
+    if not res_df.empty and not mov_mean_df.empty:
+        mov_mean_df = mov_mean_df.merge(
+            res_df[["region", "p_lr_fdr", "movie_sensitive", "neglog10_p_fdr"]],
+            on="region",
+            how="left"
+        )
 
-    return res_df, coef_df
+    return res_df, coef_df, mov_mean_df
 
 
-def save_region_tables(res_df, coef_df, results_path, nn_mi):
+def save_region_tables(res_df, coef_df, mean_df, results_path, nn_mi):
     os.makedirs(results_path, exist_ok=True)
 
     res_df.to_csv(
@@ -103,6 +139,12 @@ def save_region_tables(res_df, coef_df, results_path, nn_mi):
         f"{results_path}/movie_specificity_per_movie_nn{nn_mi}.csv",
         index=False
     )
+    
+    mean_df.to_csv(
+        f"{results_path}/movie_mean_per_movie_nn{nn_mi}.csv",
+        index=False
+    )
+
 
 def main(base_path, proj, nn_mi, mov_prop, max_regions):
     movies = list(mov_prop.keys())
@@ -121,10 +163,14 @@ def main(base_path, proj, nn_mi, mov_prop, max_regions):
     ind_ex_data["movie"] = ind_ex_data["movie"].astype("category")
     ind_ex_data["region"] = ind_ex_data["region"].astype("category")
 
-    res_df, coef_df = fit_movie_models(
+    res_df, coef_df, mean_df = fit_movie_models(
         ind_ex_data=ind_ex_data,
         movies=movies,
         max_regions=max_regions
     )
 
-    save_region_tables(res_df, coef_df, results_out_path, nn_mi)
+    save_region_tables(res_df, coef_df, mean_df, results_out_path, nn_mi)
+
+# Execute script
+if __name__ == "__main__":
+    main()
