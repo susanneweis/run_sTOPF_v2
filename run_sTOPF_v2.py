@@ -25,6 +25,7 @@ import _10d_archetype_brains_UMAP_HDBSCAN
 import _10e_network_brains_UMAP_HDBSCAN
 import _11_sti_gradients
 import _12a_analyse_movie_shared_and_specific
+import _12a2_analyse_movie_shared_and_specific
 import _12b_vis_movie_shared_and_specific
 import _12c_vis_movie_shared_and_specific_netw
 
@@ -139,6 +140,7 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 # _10e_network_brains_UMAP_HDBSCAN.main(base_path, project_ext, nn_mi, mov_prop)
 #_11_sti_gradients.main(base_path, project_ext, nn_mi, mov_prop)
 max_reg = 5
-_12a_analyse_movie_shared_and_specific.main(base_path, project_ext, nn_mi, mov_prop, max_reg)
+#_12a_analyse_movie_shared_and_specific.main(base_path, project_ext, nn_mi, mov_prop, max_reg)
+_12a2_analyse_movie_shared_and_specific.main(base_path, project_ext, nn_mi, mov_prop, max_reg, atlas_path, roi_names)
 #_12b_vis_movie_shared_and_specific.main(base_path, project_ext, nn_mi, atlas_path, roi_names)
 #_12c_vis_movie_shared_and_specific_netw.main(base_path, project_ext, nn_mi)
