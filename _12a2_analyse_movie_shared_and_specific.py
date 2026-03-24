@@ -4,6 +4,161 @@ import pandas as pd
 from _util_glass_brains_borders import create_glassbrains
 
 
+import pandas as pd
+import matplotlib.pyplot as plt
+from pathlib import Path
+
+def plot_least_stable_regions_heatmap(shared_map_file, movies, res_path, top_n, output_file):
+    """
+    Plot heatmap of normalized residuals across movies for the least stable regions.
+
+    Parameters
+    ----------
+    shared_map_file : str or Path
+        CSV file with shared-map summary. Must contain:
+        - 'region'
+        - 'stability_score'
+
+    movie_specific_dir : str or Path
+        Directory containing files like:
+        movie_specific_DD_corr.csv
+        movie_specific_S_corr.csv
+        ...
+
+    top_n : int
+        Number of least stable regions to include.
+
+    use_abs : bool
+        If True, use 'abs_normalized_residual'.
+        If False, use signed 'normalized_residual'.
+
+    output_file : str or Path or None
+        If given, save figure to this file.
+    """
+    # -----------------------------
+    # 1. Load shared map
+    # -----------------------------
+    shared_df = pd.read_csv(shared_map_file)
+
+    required_shared_cols = {"region", "stability_score"}
+    missing_shared = required_shared_cols - set(shared_df.columns)
+    if missing_shared:
+        raise ValueError(
+            f"Shared map file is missing columns: {missing_shared}\n"
+            f"Available columns: {list(shared_df.columns)}"
+        )
+
+    # -----------------------------
+    # 2. Select least stable regions
+    # -----------------------------
+    least_stable_df = (
+        shared_df.sort_values("stability_score", ascending=True)
+                 .head(top_n)
+                 .copy()
+    )
+
+    least_stable_regions = least_stable_df["region"].tolist()
+
+    # -----------------------------
+    # 3. Load all movie-specific files
+    # -----------------------------
+
+    residual_col = "normalized_residual"
+
+    movie_dfs = []
+    for mv in movies:
+        mv_f = f"{res_path}/movie_specific_{mv}_corr.csv"
+        df = pd.read_csv(mv_f)
+
+        required_movie_cols = {"region", residual_col}
+        missing_movie = required_movie_cols - set(df.columns)
+        if missing_movie:
+            raise ValueError(
+                f"Movie file {mv} is missing columns: {missing_movie}\n"
+                f"Available columns: {list(df.columns)}"
+            )
+
+        tmp = df.loc[df["region"].isin(least_stable_regions), ["region", residual_col]].copy()
+        tmp["movie"] = mv
+        movie_dfs.append(tmp)
+
+    all_movies_df = pd.concat(movie_dfs, ignore_index=True)
+
+    # -----------------------------
+    # 4. Build region x movie matrix
+    # -----------------------------
+    heat_df = all_movies_df.pivot(
+        index="region",
+        columns="movie",
+        values=residual_col
+    )
+
+    # keep row order from least to less least stable
+    heat_df = heat_df.loc[least_stable_regions]
+
+    # optional: keep movies in filename order
+    heat_df = heat_df.reindex(sorted(heat_df.columns), axis=1)
+
+    # -----------------------------
+    # 5. Plot heatmap
+    # -----------------------------
+    plt.figure(figsize=(1.2 * max(4, heat_df.shape[1]), 0.35 * max(8, heat_df.shape[0])))
+
+  
+    vmax = pd.Series(heat_df.values.ravel()).abs().max()
+    im = plt.imshow(heat_df.values, aspect="auto", vmin=-vmax, vmax=vmax)
+    cbar_label = "Normalized residual"
+
+    plt.colorbar(im, label=cbar_label)
+    plt.xticks(range(len(heat_df.columns)), heat_df.columns, rotation=45, ha="right")
+    plt.yticks(range(len(heat_df.index)), heat_df.index)
+    plt.title(f"Least stable regions (top {top_n}) across movies")
+    plt.xlabel("Movie")
+    plt.ylabel("Region")
+    plt.tight_layout()
+
+    plt.savefig(f"{res_path}/{output_file}.png", dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+def plot_summary_heatmap(summary_file, out_path, out_file):
+    # Load
+    df = pd.read_csv(summary_file)
+
+    # Keep only numeric columns
+    df = df.select_dtypes(include="number")
+
+    # Split
+    abs_cols = [c for c in df.columns if "abs" in c.lower()]
+    other_cols = [c for c in df.columns if c not in abs_cols]
+
+    df_abs = df[abs_cols]
+    df_other = df[other_cols]
+
+    # ---------
+    # PLOTTING
+    # ---------
+    def plot_heatmap(data, title, out_path):
+        plt.figure(figsize=(1.2 * data.shape[1], 0.4 * data.shape[0]))
+        plt.imshow(data.values, aspect="auto")
+        plt.colorbar()
+        plt.xticks(range(len(data.columns)), data.columns, rotation=45, ha="right")
+        plt.yticks(range(len(data.index)), data.index)
+        plt.title(title)
+        plt.tight_layout()
+        plt.show()
+
+        plt.savefig(out_path, dpi=300)
+        plt.close()  # important to avoid overlapping figures
+
+    # Plot both
+    out_f_abs = f"{out_path}/{out_file}_abs.png"
+    plot_heatmap(df_abs, "Abs columns",out_f_abs)
+
+    out_f = f"{out_path}/{out_file}_abs.png"
+    plot_heatmap(df_other, "Other columns",out_f)
+
+
 def main(base_path, proj, nn_mi, mov_prop, max_regions, atlas_path, roi_names):
 
     """
@@ -16,15 +171,19 @@ def main(base_path, proj, nn_mi, mov_prop, max_regions, atlas_path, roi_names):
     """
     movies = list(mov_prop.keys())
     # actual movies
-    movies = movies[:-3]   # excluding last two, as in your script
+    movies = movies[:-2]   # excluding last two, as in your script
 
-    results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
+    results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"    
     in_path = f"{results_path}/compare_time_courses_nn{nn_mi}"
 
-    results_out_path = f"{results_path}/movie_sensitivity_b_nn{nn_mi}"
+    if len(movies) == 7:
+        results_out_path = f"{results_path}/movie_sensitivity_no_sub_fac_nn{nn_mi}"
+    elif len(movies) == 8:
+        results_out_path = f"{results_path}/movie_sensitivity_no_sub_fac_with_ss_nn{nn_mi}"
+
     os.makedirs(results_out_path, exist_ok=True)
 
-    results_g_path = f"{results_path}/movie_sensitivity_b_nn{nn_mi}/glass_brains"
+    results_g_path = f"{results_out_path}/glass_brains"
     os.makedirs(results_g_path, exist_ok=True)
 
     metric="corr"
@@ -264,6 +423,12 @@ def main(base_path, proj, nn_mi, mov_prop, max_regions, atlas_path, roi_names):
         # Movie-level summary
         summary_rows.append({
             "movie": movie,
+            "mean_residual": out_df["residual"].mean(),
+            "max_residual": out_df["residual"].max(),
+            "min_residual": out_df["residual"].min(),
+            "mean_normalized_residual": out_df["normalized_residual"].mean(),
+            "max_normalized_residual": out_df["normalized_residual"].max(),
+            "min_normalized_residual": out_df["normalized_residual"].min(),
             "mean_abs_residual": out_df["abs_residual"].mean(),
             "max_abs_residual": out_df["abs_residual"].max(),
             "mean_abs_normalized_residual": out_df["abs_normalized_residual"].mean(),
@@ -271,14 +436,18 @@ def main(base_path, proj, nn_mi, mov_prop, max_regions, atlas_path, roi_names):
         })
 
     summary_df = pd.DataFrame(summary_rows)
-    summary_df.to_csv(
-        os.path.join(results_out_path, f"movie_specific_summary_{metric}.csv"),
-        index=False
-    )
+    summary_file = f"{results_out_path}/movie_specific_summary_{metric}.csv"
+    summary_df.to_csv(summary_file,index=False)
 
     print("Done.")
     print(f"Saved outputs to: {results_out_path}")
 
+    tp_reg = 20
+    heat_plot_stable = f"stability_top{tp_reg}"
+    plot_least_stable_regions_heatmap(shared_map_file, movies, results_out_path, tp_reg, heat_plot_stable)
+    
+    heat_plot_summary = f"movie_specific_summary_{metric}"
+    plot_summary_heatmap(summary_file, results_out_path, heat_plot_summary)
 
 # Execute script
 if __name__ == "__main__":

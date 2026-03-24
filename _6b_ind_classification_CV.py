@@ -18,10 +18,10 @@ from julearn.stats.corrected_ttest import corrected_ttest
 
 # from julearn.viz import plot_scores
 
-def main(base_path, proj, nn_mi,movies_properties,quant):
+def main(base_path, proj, nn_mi,movies_properties,quant,model):
     results_path = f"{base_path}/results_run_sTOPF_v2_data_{proj}/results_nn{nn_mi}"
 
-    results_out_path = f"{results_path}/ind_classification_CV_nn{nn_mi}"
+    results_out_path = f"{results_path}/ind_classification_CV_{model}_nn{nn_mi}"
     if not os.path.exists(results_out_path):
         os.makedirs(results_out_path, exist_ok=True) # Create the output directory if it doesn't exist
 
@@ -54,8 +54,8 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
     # Classification per Movie
     # change this if neccessary 
     
-    out_csv_mi = f"{results_out_path}/classification_CV_nn{nn_mi}.csv" 
-    out_csv_corr = f"{results_out_path}/classification_CV_corr.csv" 
+    out_csv_mi = f"{results_out_path}/classification_CV_{model}_nn{nn_mi}.csv" 
+    out_csv_corr = f"{results_out_path}/classification_CV_{model}_corr.csv" 
     
     for curr_mov in movies:
 
@@ -105,7 +105,7 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
             y=y,
             X_types=X_types, 
             data=class_data_train,
-            model="svm",
+            model=model,
             problem_type="classification",
             seed=200,
             return_estimator="final",
@@ -275,7 +275,7 @@ def main(base_path, proj, nn_mi,movies_properties,quant):
         fi_df["movie"] = curr_mov                 # <-- must exist in your loop
         fi_df["metric"] = "corr"         # <-- set this in your loop (e.g., "mi", "corr")
         fi_df["feature_percentage"] = quant # <-- your 10/20/...
-        fi_df["model"] = "svm"
+        fi_df["model"] = model
         fi_df["scoring"] = "balanced_accuracy"
         fi_df["n_repeats_perm"] = 50
 
