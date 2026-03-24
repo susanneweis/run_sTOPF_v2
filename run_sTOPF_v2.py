@@ -124,8 +124,9 @@ print(f"\n Path and Files found: \n - {base_path}\n")
 # for top_reg in [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 100]: 
 #     _5b_ind_classification.main(base_path, project_ext, nn_mi, mov_prop,top_reg)
 # highest stability 
-nn_values = [17]
-models = ["svm", "rf"]
+nn_values = [15, 17]
+# models = ["svm", "rf"]
+models = ["rf"]
 for nn_mi in nn_values:
     for model in models:
         for top_reg in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]: 

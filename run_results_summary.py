@@ -24,7 +24,7 @@ results = "results_run_sTOPF_v2_data_v4"
 
 nn_values = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
 #nn_values = [11]
-nn_values = [15]
+nn_values = [17]
 
 #_results_1_summarize_classifications.main(base_path,results,nn_values)
 #_results_2_assess_stability.main(base_path,results,nn_values)
@@ -32,8 +32,8 @@ nn_values = [15]
 #_results_4_sex_type_distributions.main(base_path,results)
 
 for nn in nn_values:        
-    path = f"{base_path}/{results}/results_nn{nn}/ind_classification_CV_nn{nn}"
-    file = "classification_CV_corr"
+    path = f"{base_path}/{results}/results_nn{nn}/ind_classification_CV_svm_nn{nn}"
+    file = "classification_CV_svm_corr"
     titel = "Correlation"
     
     col = "cv_balanced_accuracy_mean"
@@ -42,7 +42,7 @@ for nn in nn_values:
     col = "test_balanced_accuracy"
     _results_5_CV_classification_results.main(path,file,col,titel)
     
-    file = f"classification_CV_nn{nn}"
+    file = f"classification_CV_svm_nn{nn}"
     titel = f"MutInf nn{nn}"
     
     col = "cv_balanced_accuracy_mean"
